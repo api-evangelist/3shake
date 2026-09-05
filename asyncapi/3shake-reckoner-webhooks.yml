@@ -1,0 +1,79 @@
+generated: '2026-09-05'
+method: derived
+source: openapi/3shake-reckoner-external-api-openapi.yml
+docs: https://developers.reckoner-api.com/reckoner-external-api.html
+spec_type: none
+asyncapi_published: false
+note: >-
+  3-shake publishes no AsyncAPI document for any product — searched the GitHub org, the API reference host and
+  /asyncapi.yaml on every host, all misses. Reckoner nonetheless has a real, contract-evidenced event surface in BOTH
+  directions, so this file captures the webhook catalogue and the repo emits a Webhooks pointer rather than an AsyncAPI
+  one. Nothing here is invented: every channel below is named by a schema or an enum value in the provider's own
+  OpenAPI. Payload shapes are NOT recorded because the contract does not carry them — an outbound notification body is
+  never described in the OpenAPI (it is not an operation of this API) and no published document could be read for it.
+  Recording a guessed payload here would be exactly the fabrication this pipeline forbids.
+inbound:
+  description: Webhook triggers that start a workflow from outside Reckoner.
+  evidence:
+  - schema: Workflow.webhooks
+    text: 作成済みのWebhookトリガーURLの一覧 (list of created webhook trigger URLs)
+    source: openapi/3shake-reckoner-external-api-openapi.yml#/components/schemas/Workflow
+  - schema: WorkflowJobTrigger
+    text: 'enum value `webhook` — Webhook実行 (execution by webhook)'
+    source: openapi/3shake-reckoner-external-api-openapi.yml#/components/schemas/WorkflowJobTrigger
+  channels:
+  - name: workflow.trigger
+    direction: inbound
+    transport: HTTPS POST to a per-workflow trigger URL minted in the console
+    url_discovery: read the webhooks[] array on GET /workflows/{workflowId} (getWorkflow)
+    creates: a WorkflowJob whose trigger is `webhook`
+    note: >-
+      The trigger URL is created in the console, not through the API; the API can only read the list of URLs already
+      created. This is a genuine second execution path alongside runWorkflow — an agent that cannot hold a pat_ token
+      can still start a workflow with a trigger URL.
+outbound:
+  description: Notifications Reckoner sends when a workflow job finishes.
+  evidence:
+  - schema: WorkflowNotifications
+    text: ワークフローの通知設定 (workflow notification settings) — required members emails, webhooks, slacks, msteams
+    source: openapi/3shake-reckoner-external-api-openapi.yml#/components/schemas/WorkflowNotifications
+  channels:
+  - name: workflow.job.notification.webhook
+    direction: outbound
+    schema: WorkflowNotificationWebhook
+    fields: [status, url]
+    field_notes:
+      status: WorkflowNotificationStatus — which job outcomes fire the notification
+      url: 通知先URL (destination URL)
+    payload_documented: false
+  - name: workflow.job.notification.email
+    direction: outbound
+    schema: WorkflowNotificationEmail
+    payload_documented: false
+  - name: workflow.job.notification.slack
+    direction: outbound
+    schema: WorkflowNotificationSlack
+    payload_documented: false
+  - name: workflow.job.notification.msteams
+    direction: outbound
+    schema: WorkflowNotificationMSTeams
+    payload_documented: false
+    shipped: '2026-04-09'
+    shipped_evidence: https://reckoner.io/news/update-20260409/
+event_states:
+  source: openapi/3shake-reckoner-external-api-openapi.yml#/components/schemas/WorkflowJobStatus
+  states: [SUBMITTING, RUNNABLE, RUNNING, COMPLETED, FAILED, CANCEL_STARTED, CANCELED, SERVER_ERROR]
+  terminal: [COMPLETED, FAILED, CANCELED, SERVER_ERROR]
+  note: >-
+    These are the job states a notification reports on and the states a polling client reads from getWorkflowJob. They
+    are the closest thing the provider publishes to an event vocabulary.
+polling_alternative:
+  operation: getWorkflowJob
+  path: 'GET /workflows/{workflowId}/jobs/{jobId}'
+  note: >-
+    Because no outbound payload is documented, the reliable machine path after runWorkflow is to poll getWorkflowJob on
+    the returned jobId until status is terminal. The skills/ artifact uses this rather than the notification webhook.
+gaps:
+- No AsyncAPI or CloudEvents document.
+- No published outbound payload schema, signing scheme, secret, or replay/retry policy for the notification webhook.
+- No API operation creates, updates or deletes a webhook trigger URL or a notification — console only.

@@ -1,0 +1,31 @@
+generated: '2026-09-05'
+method: probed
+source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
+hosts:
+- host: 3-shake.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Jan 13 23:59:59 2027 GMT
+  hsts: false
+- host: developers.reckoner-api.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Oct 22 22:43:30 2026 GMT
+  hsts: false
+- host: cdp-server.reckoner-api.com
+  https: true
+  tls_version: TLSv1.3
+  cert_expires: Nov 17 20:41:52 2026 GMT
+  hsts: null
+domains:
+- domain: 3-shake.com
+  dnssec: false
+  caa: []
+  spf: true
+  dmarc: true
+  dmarc_policy: quarantine
+- domain: reckoner-api.com
+  dnssec: false
+  caa: []
+  spf: false
+  dmarc: false

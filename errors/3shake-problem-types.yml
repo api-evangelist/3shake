@@ -1,0 +1,104 @@
+generated: '2026-09-05'
+method: derived
+source: openapi/3shake-reckoner-external-api-openapi.yml
+format: vendor-json
+rfc9457: false
+envelope:
+  media_type: application/json
+  schema: ErrorResponse
+  required: [code, message]
+  fields:
+    code: machine-readable error code, drawn from a closed enum per status
+    message: human-readable message (English strings in the published examples)
+note: >-
+  Derived from the seven reusable response components in the Reckoner External API contract, each of which pins the
+  `code` field to an enum and most of which carry a worked example. Every operation except authTokenRefresh declares all
+  seven; authTokenRefresh omits 429. This is not RFC 9457 (no type/title/instance, not application/problem+json) but it
+  is fully enumerated, which is the property that matters to a client. The Securify Scan API, a different 3-shake
+  product, uses an RFC 9457-shaped envelope instead — recorded at the bottom of this file.
+problems:
+- status: 400
+  component: BadRequest
+  codes: [BAD_REQUEST]
+  title: 不正リクエスト
+  title_en: Bad request
+  remediation: Fix the request parameters or body against the operation's schema before retrying.
+- status: 401
+  component: Unauthorized
+  codes: [UNAUTHORIZED, TOKEN_INVALID, TOKEN_EXPIRED, TOKEN_REVOKED]
+  title: 認証エラー
+  title_en: Authentication error
+  examples:
+    UNAUTHORIZED: {code: UNAUTHORIZED, message: unauthorized}
+    TOKEN_INVALID: {code: TOKEN_INVALID, message: access token invalid}
+    TOKEN_EXPIRED: {code: TOKEN_EXPIRED, message: access token expired}
+    TOKEN_REVOKED: {code: TOKEN_REVOKED, message: access token revoked}
+  remediation: >-
+    TOKEN_EXPIRED is the only one of the four that is recoverable without a human — call authTokenRefresh with the prt_
+    refresh token and retry. TOKEN_REVOKED and TOKEN_INVALID require a new token from the console; retrying will not
+    help.
+- status: 402
+  component: PaymentRequired
+  codes: [SUBSCRIPTION_INACTIVE]
+  title: サブスクリプションが無効
+  title_en: Subscription inactive
+  remediation: >-
+    A commercial state, not a request defect. Retrying never clears it; the tenant's Reckoner subscription must be
+    reactivated. An agent should stop and escalate.
+- status: 403
+  component: Forbidden
+  codes: [FORBIDDEN, FEATURE_NOT_AVAILABLE]
+  title: 認可エラー
+  title_en: Authorization error
+  remediation: >-
+    FORBIDDEN means the token's account lacks the role for this operation (see the ProjectAccount roles enum:
+    project-admin, workflow-editor, integration-editor, read-only). FEATURE_NOT_AVAILABLE means the tenant's plan does
+    not include the feature — a plan boundary, distinct from a permission boundary, and the contract usefully separates
+    the two.
+- status: 404
+  component: NotFound
+  codes: [NOT_FOUND]
+  title: リソース未検出
+  title_en: Resource not found
+  remediation: Verify the workflowId / jobId / projectId / integrationId / accountId path parameter.
+- status: 429
+  component: TooManyRequests
+  codes: [RATE_LIMIT_EXCEEDED]
+  title: レート制限超過
+  title_en: Rate limit exceeded
+  examples:
+    RATE_LIMIT_EXCEEDED: {code: RATE_LIMIT_EXCEEDED, message: rate limit exceeded}
+  remediation: >-
+    Back off and retry. The contract publishes no Retry-After header and no numeric limit, so the client must choose its
+    own backoff — see rate-limits/3shake-rate-limits.yml.
+  declared_on: all operations except authTokenRefresh
+- status: 500
+  component: InternalServerError
+  codes: [INTERNAL_SERVER_ERROR]
+  title: 内部サーバーエラー
+  title_en: Internal server error
+  remediation: >-
+    Retry with backoff, but note there is no idempotency mechanism — a retried runWorkflow after a 500 may start a
+    second job. See conventions/3shake-conventions.yml.
+job_level_errors:
+  note: >-
+    Distinct from HTTP errors. A workflow job that fails returns HTTP 200 with WorkflowJob.status FAILED or SERVER_ERROR
+    and an errors[] array of WorkflowJobError. A client polling getWorkflowJob must read the body status, not the HTTP
+    status.
+  statuses: [SUBMITTING, RUNNABLE, RUNNING, COMPLETED, FAILED, CANCEL_STARTED, CANCELED, SERVER_ERROR]
+  terminal_failure_statuses: [FAILED, SERVER_ERROR]
+other_apis:
+- api: Securify Scan Public API
+  method: probed
+  envelope: '{"title": "<title>", "status": <int>, "detail": "<detail>"}'
+  rfc9457_shaped: true
+  media_type_returned: application/json
+  evidence:
+  - url: https://scan.securify.jp/api/v1
+    status: 401
+    body: '{"title":"Unauthenticated","status":401,"detail":"無効なリクエストです。"}'
+    fetched: '2026-09-05'
+  note: >-
+    RFC 9457 member names, but served as application/json rather than application/problem+json, and no `type` member was
+    returned. Recorded from a live anonymous probe; no published error reference for this API could be read (the help
+    centre sits behind a Cloudflare bot challenge), so this is the only observed problem type.

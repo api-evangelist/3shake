@@ -1,0 +1,44 @@
+generated: '2026-09-05'
+method: searched
+source: https://reckoner.io/news/feature-update/
+scope: Reckoner (the product that owns the public API in this repo)
+scheme:
+  cadence: roughly fortnightly, dated to the day
+  product_versioning: none published — updates are dated, not numbered
+  api_contract_version: 1.1.0 (info.version in the Reckoner External API contract)
+  breaking_change_marking: none — entries do not flag breaking vs additive
+note: >-
+  Recent window only; the live page is the source of truth. Entries are the provider's own Japanese titles with an
+  English gloss added by API Evangelist. The API-relevant subset is called out separately below because it shows the
+  External API being built out in public over 2026 — a strong currency signal that the packages/ artifact contradicts
+  for the SDK layer.
+entries:
+- {date: '2026-08-20', url: 'https://reckoner.io/news/update-20260820/', title: 'Azure Synapse Analyticsの追加、シンク GMOメイクショップの追加、HTTP（第2世代）用の接続情報追加', summary: 'Azure Synapse Analytics added; GMO MakeShop sink added; connection records for HTTP (2nd generation)', api_related: false, breaking: false}
+- {date: '2026-07-23', url: 'https://reckoner.io/news/update-20260723/', title: 'ソース/シンクにDatabricks を新規追加、Reckoner API: アカウント削除を追加、Salseforce、Hue Workflowへの機能改善', summary: 'Databricks source/sink added; DELETE /accounts/{accountId} added to the External API; Salesforce and Hue Workflow improvements', api_related: true, breaking: false}
+- {date: '2026-07-09', url: 'https://reckoner.io/news/update-20260709/', title: 'BigQuery SQL（第2世代）追加、ソースへのMicrosoft広告追加、Reckoner APIのプロジェクト情報取得の機能拡張', summary: 'BigQuery SQL (2nd gen) added; Microsoft Ads source added; project-information retrieval extended in the External API', api_related: true, breaking: false}
+- {date: '2026-06-25', url: 'https://reckoner.io/news/update-20260625/', title: 'ワークフロー連携機能の追加、ファイル生成の除外フィールド指定に対応', summary: 'Workflow chaining added; excluded-field selection for file generation', api_related: false, breaking: false}
+- {date: '2026-06-11', url: 'https://reckoner.io/news/update-20260611/', title: 'エラー診断AI（β）追加、ワークフロージョブのキャンセルAPI対応、DBシンク/HTTPソース/Redshiftの機能改善', summary: 'Error-diagnosis AI (beta); workflow-job cancel API (the cancelWorkflowJobs reversal path); DB sink / HTTP source / Redshift improvements', api_related: true, breaking: false}
+- {date: '2026-05-28', url: 'https://reckoner.io/news/update-20260528/', title: '分析のデータチェック追加、外部APIのアクセストークン発行対応、ワークフロー上限引き上げ', summary: 'Analytics data checks; access-token issuance for the External API (the pat_/prt_ model); workflow ceiling raised', api_related: true, breaking: false}
+- {date: '2026-05-14', url: 'https://reckoner.io/news/update-20260514/', title: 'Azure SQL／PostgreSQLシンクの書き込みモード拡充、ソース奉行クラウド機能拡張', summary: 'More write modes for Azure SQL / PostgreSQL sinks; Bugyo Cloud source extended', api_related: false, breaking: false}
+- {date: '2026-04-23', url: 'https://reckoner.io/news/update-20260423/', title: 'IBM Db2 for i 接続機能の新規追加、Dr.Sumシンクの機能追加', summary: 'IBM Db2 for i connectivity; Dr.Sum sink features', api_related: false, breaking: false}
+- {date: '2026-04-09', url: 'https://reckoner.io/news/update-20260409/', title: '変換:コード実行機能の新規追加、Microsoft Teamsへのワークフロー実行結果通知に対応', summary: 'Code-execution transform; Microsoft Teams workflow-result notifications (the WorkflowNotificationMSTeams channel)', api_related: false, breaking: false}
+- {date: '2026-03-26', url: 'https://reckoner.io/news/update-20260326/', title: 'ソース/シンクにIBM Db2 を新規追加、プレビュー実行にかかる処理時間の短縮', summary: 'IBM Db2 source/sink; faster preview runs', api_related: false, breaking: false}
+- {date: '2026-03-12', url: 'https://reckoner.io/news/update-20260312/', title: '外部API、SFTPファイル操作の機能拡張を行いました', summary: 'External API and SFTP file-operation extensions', api_related: true, breaking: false}
+- {date: '2026-03-02', url: 'https://reckoner.io/news/update-20260226/', title: '外部API・HTTP（第2世代）・条件付き列追加の機能拡張', summary: 'External API, HTTP (2nd gen) and conditional-column extensions', api_related: true, breaking: false}
+- {date: '2026-02-12', url: 'https://reckoner.io/news/update-20260212/', title: '作成画面のタスク選択・検索UI改善、文字化け問題を修正', summary: 'Task-selection and search UI improvements; mojibake fix', api_related: false, breaking: false}
+- {date: '2026-01-29', url: 'https://reckoner.io/news/update-20260129/', title: 'ReckonerのAPI機能の新規追加、Reckoner AIエージェントにワークフロー解説出力機能を追加', summary: 'The Reckoner External API is introduced; Reckoner AI agent gains workflow explanation output', api_related: true, breaking: false, milestone: 'first public release of the External API'}
+- {date: '2026-01-15', url: 'https://reckoner.io/news/update-20260115/', title: 'シンク: Amazon Redshiftの追加、変換:ファイル生成にExcelフォーマットを追加', summary: 'Amazon Redshift sink; Excel output format for file generation', api_related: false, breaking: false}
+api_timeline:
+  first_release: '2026-01-29'
+  releases_touching_the_api: 6
+  additions_observed: [access-token issuance (2026-05-28), job cancel (2026-06-11), project information (2026-07-09), account deletion (2026-07-23)]
+  breaking_changes_observed: 0
+  note: >-
+    Seven months old and shipping roughly monthly. Every API change observed in the window is additive; no removal,
+    rename or deprecation has been announced.
+other_products:
+  securify: https://www.securify.jp/news/
+  company: https://3-shake.com/category/news/
+  note: >-
+    Securify and the parent company publish dated news feeds too, but those are press releases and customer wins rather
+    than a product changelog, so they are not recorded as change entries here.

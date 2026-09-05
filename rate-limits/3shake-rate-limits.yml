@@ -1,0 +1,48 @@
+generated: '2026-09-05'
+method: searched
+source: openapi/3shake-reckoner-external-api-openapi.yml
+docs: https://developers.reckoner-api.com/reckoner-external-api.html
+limit_count: 0
+note: >-
+  Reckoner enforces rate limiting and says so in the contract — a 429 TooManyRequests response with a
+  RATE_LIMIT_EXCEEDED code and a worked example is declared on 14 of the 15 operations — but publishes NO number and NO
+  runtime signal. There is no RateLimit-* or X-RateLimit-* header, no Retry-After, and no limits page in the API
+  reference or the help centre index. limit_count is therefore an honest 0: the ceiling exists and is undiscoverable
+  until a client hits it. A client can only detect exhaustion after the fact and must invent its own backoff.
+  Separately, the plan quotas in plans/3shake-plans-pricing.yml (10-50 GB and 200-1,000 workflow runs per month) are the
+  published consumption ceilings, but those are billing quotas measured per month, not per-second request limits, and
+  they are enforced against workflow execution rather than API calls.
+limits: []
+exhaustion_signal:
+  status: 429
+  error_code: RATE_LIMIT_EXCEEDED
+  body: '{"code": "RATE_LIMIT_EXCEEDED", "message": "rate limit exceeded"}'
+  media_type: application/json
+  declared_on: 14 of 15 operations (all except authTokenRefresh)
+  source: openapi/3shake-reckoner-external-api-openapi.yml#/components/responses/TooManyRequests
+response_headers:
+  ratelimit_draft: false
+  x_ratelimit: false
+  retry_after: false
+  observed: []
+  note: >-
+    Confirmed by two paths — a full-text scan of the contract finds zero occurrences of retry-after, x-ratelimit or a
+    RateLimit header definition (the only `headers` key in the document is unrelated), and the live anonymous 401 from
+    https://cdp-server.reckoner-api.com/api/external/v1 returns no rate-limit headers either. A 429 could not be
+    provoked without credentials, so no observed-header evidence exists.
+related_quotas:
+  source: https://reckoner.io/price
+  dimension: monthly data volume and monthly workflow-run count, per plan
+  reporting_operation: listWorkflowUsages (GET /workflows/usages)
+  note: >-
+    The API exposes its own consumption meter — listWorkflowUsages takes since_date/until_date/classification/
+    project_ids and returns WorkflowUsageTotal + WorkflowUsageDetail. An agent can therefore measure its own quota burn
+    even though it cannot see the request-rate ceiling.
+other_apis:
+- api: Securify Scan Public API
+  limit_count: 0
+  method: searched
+  note: >-
+    No published rate limits. The reference is a Zendesk help centre behind a Cloudflare bot challenge (HTTP 403), so
+    nothing could be read first-hand; the anonymous 401 at https://scan.securify.jp/api/v1 carried no rate-limit
+    headers.

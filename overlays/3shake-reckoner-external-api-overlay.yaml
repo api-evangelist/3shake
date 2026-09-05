@@ -1,0 +1,75 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Reckoner External API
+  version: 1.0.0
+extends: openapi/3shake-reckoner-external-api-openapi.yml
+x-generated: '2026-09-05'
+x-method: generated
+x-source: >-
+  Enhancements derived by API Evangelist from the provider's own contract, harvested 2026-09-05 from the Redoc bundle at
+  https://developers.reckoner-api.com/reckoner-external-api.html. The original spec is never mutated; everything the
+  pipeline adds lives here.
+actions:
+- target: $.info
+  update:
+    x-apievangelist-harvested: '2026-09-05'
+    x-apievangelist-source: https://developers.reckoner-api.com/reckoner-external-api.html
+    x-apievangelist-provider: 3-shake, Inc.
+    x-apievangelist-product: Reckoner
+    contact:
+      name: Reckoner support (3-shake, Inc.)
+      url: https://reckoner.io/contact
+    license:
+      name: Reckoner Terms of Service
+      url: https://reckoner.io/term
+- target: $
+  update:
+    tags:
+    - name: Workflows
+      description: Run, inspect, export and list Reckoner data-integration workflows and their jobs.
+    - name: Integrations
+      description: Saved connections to external SaaS, DWH and database services. Properties never include secrets.
+    - name: Projects
+      description: The tenancy unit that owns workflows, connections and accounts.
+    - name: Accounts
+      description: Users within a project, carrying the project-admin / workflow-editor / integration-editor / read-only roles.
+    - name: Auth
+      description: Access-token refresh using the prt_ refresh token.
+- target: $.paths['/workflows/{workflowId}/run'].post
+  update:
+    x-agentic-consequence: write
+    x-apievangelist-reversal: cancelWorkflowJobs
+    x-apievangelist-note: >-
+      Starts a real data-movement job. There is no idempotency key, so a retry after a timeout starts a SECOND job.
+      Poll getWorkflowJob with the returned jobId rather than re-issuing the run.
+- target: $.paths['/accounts/{accountId}'].delete
+  update:
+    x-agentic-consequence: safety-critical
+    x-apievangelist-reversal: null
+    x-apievangelist-note: >-
+      Irreversible as published — no restore operation and no documented retention window. The cascade parameter widens
+      the blast radius. Human confirmation should gate this operation.
+- target: $.paths['/integrations/{serviceName}/{integrationId}'].delete
+  update:
+    x-agentic-consequence: write
+    x-apievangelist-reversal: null
+    x-apievangelist-note: >-
+      Irreversible as published. `force` deletes a connection even when workflows still reference it, which will break
+      those workflows at their next run.
+- target: $.paths['/workflows/{workflowId}/jobs/{jobId}/cancel'].put
+  update:
+    x-agentic-consequence: write
+    x-apievangelist-note: >-
+      The reversal path for runWorkflow. Only meaningful while status is SUBMITTING, RUNNABLE or RUNNING; the contract
+      does not state the behaviour against a terminal job, and cancelling does not roll back rows a sink task already
+      wrote.
+- target: $.components.responses.TooManyRequests
+  update:
+    x-apievangelist-note: >-
+      No RateLimit-*/X-RateLimit-* header and no Retry-After is declared, and no numeric limit is published, so a client
+      can detect exhaustion but cannot pace against it. See rate-limits/3shake-rate-limits.yml.
+- target: $.components.schemas.ErrorResponse
+  update:
+    x-apievangelist-note: >-
+      Vendor envelope, not RFC 9457 — no type/title/instance and served as application/json. Every status pins `code` to
+      a closed enum, which is the machine-readable property that matters. Catalogued in errors/3shake-problem-types.yml.

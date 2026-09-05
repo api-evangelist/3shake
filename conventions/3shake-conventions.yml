@@ -1,0 +1,145 @@
+generated: '2026-09-05'
+method: derived
+source: openapi/3shake-reckoner-external-api-openapi.yml
+docs: https://developers.reckoner-api.com/reckoner-external-api.html
+scope: Reckoner External API v1.1.0
+authentication:
+  style: bearer token in the Authorization header
+  token_prefixes: {access: 'pat_', refresh: 'prt_'}
+  refresh: POST /auth/token/refresh (authTokenRefresh), presented with the prt_ refresh token
+  detail: authentication/3shake-authentication.yml
+versioning:
+  scheme: uri-path
+  current: v1
+  path_segment: /api/external/v1
+  contract_version: 1.1.0
+  media_type_versioning: false
+  header_versioning: false
+  note: >-
+    The base URL carries the major version (/api/external/v1) while info.version tracks the contract revision (1.1.0).
+    No version negotiation header is declared, and nothing in the contract states a support window for v1.
+pagination:
+  style: page-number
+  params:
+    limit: {in: query, type: integer, maximum: 100, default: 100, note: maximum page size, capped at 100}
+    page: {in: query, type: integer, default: 1, note: 1-indexed page number}
+  applies_to: [listWorkflowJobs, listWorkflows]
+  response_fields:
+    total: total matching rows (post-filter)
+    items: jobs[] on WorkflowJobs, workflows[] on Workflows
+  no_cursor: true
+  no_link_header: true
+  note: >-
+    Only the two list operations paginate. listProjects, getProjectAccounts, listIntegrations and listWorkflowUsages
+    return unbounded collections with no paging parameters at all — a client cannot bound those responses.
+filtering_and_sorting:
+  filters:
+    listWorkflowJobs: [started_at, ended_at]
+    listWorkflows: [search_words, label_ids, schedule_filtering_by]
+    listIntegrations: [service]
+    listWorkflowUsages: [since_date, until_date, classification, project_ids]
+  sorting:
+    listWorkflows:
+      param: sort
+      form: '<field>:<direction>'
+      fields: [name, updated_at, last_started_at]
+      directions: [asc, desc]
+      default: updated_at:desc
+  multi_value_convention: comma-separated string (label_ids, project_ids)
+  timezone: JST for the started_at / ended_at date filters, stated in the parameter descriptions
+field_expansion:
+  supported: false
+  note: No expand / fields / include parameter is declared anywhere in the contract.
+metadata:
+  user_defined_metadata: false
+  labels: >-
+    Workflows carry a Label object (id, name, description) managed in the console; the API can filter on label_ids but
+    cannot create or attach labels.
+request_tracing:
+  request_id_header: null
+  note: >-
+    No request-id / correlation-id header is documented in the contract, and none is returned on the anonymous 401 from
+    cdp-server.reckoner-api.com. An agent has no provider-side handle to quote in a support ticket.
+error_envelope:
+  shape: '{"code": "<MACHINE_CODE>", "message": "<human message>"}'
+  media_type: application/json
+  rfc9457: false
+  required_fields: [code, message]
+  machine_codes_are_enumerated: true
+  detail: errors/3shake-problem-types.yml
+  note: >-
+    Not RFC 9457 — no type/title/instance members and no application/problem+json media type — but every status has a
+    closed enum of machine-readable `code` values and a worked example, which is the property an agent actually needs.
+    Note the OTHER 3-shake API disagrees: scan.securify.jp/api/v1 returns an RFC 9457-shaped
+    {"title","status","detail"} body. The two products do not share an error contract.
+rate_limit_signaling:
+  status_on_exhaustion: 429
+  error_code: RATE_LIMIT_EXCEEDED
+  response_headers: []
+  retry_after: false
+  note: >-
+    The 429 is declared on 14 of 15 operations but no RateLimit-*/X-RateLimit-* header and no Retry-After is documented,
+    and no numeric limit is published. A client can detect exhaustion but cannot anticipate or pace against it.
+  detail: rate-limits/3shake-rate-limits.yml
+idempotency:
+  coverage: none
+  mechanism: null
+  header: null
+  scope: []
+  note: >-
+    No Idempotency-Key header, parameter or extension appears anywhere in the contract (zero occurrences of /idempot/i),
+    and the docs describe none. Four mutating operations are exposed — runWorkflow, cancelWorkflowJobs,
+    deleteIntegration, deleteAccount — and a retried runWorkflow after a timeout will start a second workflow job that
+    the caller cannot deduplicate. No Idempotency pointer is emitted in apis.yml.
+reversibility:
+  grade: documented
+  overall: partial
+  note: >-
+    One of the four write surfaces has a first-class reversal operation and it is declared in the contract; the other
+    three do not, and no reversal window is stated anywhere in the contract or the release notes. Grade is `documented`
+    (a reversal path exists) and NOT `verified`, because no window is published. No window is asserted here.
+  write_surfaces:
+  - operation: runWorkflow
+    method: POST
+    path: /workflows/{workflowId}/run
+    reversal: cancelWorkflowJobs
+    reversal_path: PUT /workflows/{workflowId}/jobs/{jobId}/cancel
+    window_stated: false
+    window: null
+    note: >-
+      Cancel is only meaningful while the job is live. The WorkflowJobStatus enum makes the state machine explicit —
+      SUBMITTING, RUNNABLE, RUNNING are cancellable in principle and move to CANCEL_STARTED then CANCELED; COMPLETED,
+      FAILED and SERVER_ERROR are terminal. The contract does not say what cancel returns for a terminal job, and
+      cancelling does not undo rows a sink task has already written downstream.
+  - operation: deleteIntegration
+    method: DELETE
+    path: /integrations/{serviceName}/{integrationId}
+    reversal: null
+    window_stated: false
+    note: >-
+      No restore or undelete operation exists. The `force` query parameter widens the blast radius (deleting a
+      connection still referenced by workflows) rather than narrowing it.
+  - operation: deleteAccount
+    method: DELETE
+    path: /accounts/{accountId}
+    reversal: null
+    window_stated: false
+    note: >-
+      No restore operation and no soft-delete/retention period is documented. A `cascade` query parameter exists. This
+      is the highest-consequence operation in the API and it is irreversible as published.
+  - operation: cancelWorkflowJobs
+    method: PUT
+    path: /workflows/{workflowId}/jobs/{jobId}/cancel
+    reversal: runWorkflow
+    window_stated: false
+    note: A cancelled job is not resumable; re-running starts a new job with a new jobId.
+dry_run_mode:
+  supported: false
+  note: No preview/validate/dry-run parameter or operation is declared. An agent cannot rehearse runWorkflow.
+cross_links:
+  authentication: authentication/3shake-authentication.yml
+  errors: errors/3shake-problem-types.yml
+  lifecycle: lifecycle/3shake-lifecycle.yml
+  rate_limits: rate-limits/3shake-rate-limits.yml
+  data_model: data-model/3shake-data-model.yml
+  webhooks: asyncapi/3shake-reckoner-webhooks.yml

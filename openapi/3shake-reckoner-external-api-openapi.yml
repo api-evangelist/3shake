@@ -1,0 +1,1842 @@
+openapi: 3.0.3
+info:
+  title: Reckoner External API
+  description: Reckoner API 仕様
+  version: 1.1.0
+servers:
+- url: https://cdp-server.reckoner-api.com/api/external/v1
+  description: Reckoner API サーバー
+paths:
+  /workflows/{workflowId}/run:
+    post:
+      summary: ワークフロー実行
+      description: 指定されたワークフローを実行します
+      operationId: runWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/WorkflowRun'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs/{jobId}:
+    get:
+      summary: ワークフロージョブ実行結果取得
+      description: 指定されたワークフロージョブの実行結果を取得します
+      operationId: getWorkflowJob
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: jobId
+        in: path
+        required: true
+        description: ワークフロージョブID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs:
+    get:
+      summary: ワークフロージョブ実行結果一覧取得
+      description: 指定されたワークフローのジョブ実行結果一覧を取得します
+      operationId: listWorkflowJobs
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: 1ページあたりの最大件数。未指定時は100として扱われる
+        schema:
+          type: integer
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: 'ページ番号。1ページあたりの最大件数は limit で指定。未指定時は1として扱われる
+
+          '
+        schema:
+          type: integer
+      - name: started_at
+        in: query
+        required: false
+        description: ジョブの開始日。タイムゾーンはJST。指定した日付以降に開始したジョブのみ返却する
+        schema:
+          type: string
+          format: date
+          example: '2026-01-01'
+      - name: ended_at
+        in: query
+        required: false
+        description: ジョブの終了日。タイムゾーンはJST。指定した日付以前に終了したジョブのみ返却する
+        schema:
+          type: string
+          format: date
+          example: '2026-01-01'
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowJobs'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs/{jobId}/cancel:
+    put:
+      summary: ワークフロージョブキャンセル
+      description: '指定されたワークフロージョブをキャンセルします.
+
+        ジョブがすでに完了している場合、成功として扱いステータスコード 200 を返却します.
+
+        '
+      operationId: cancelWorkflowJobs
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: jobId
+        in: path
+        required: true
+        description: ワークフロージョブID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}:
+    get:
+      summary: ワークフロー取得
+      description: 指定されたワークフローの詳細情報を取得します
+      operationId: getWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/projects/{projectId}:
+    get:
+      summary: ワークフロー一覧取得
+      description: 指定されたプロジェクト内のワークフローの一覧を取得します
+      operationId: listWorkflows
+      tags:
+      - Workflows
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: 1ページあたりの最大件数。未指定時は100として扱われる
+        schema:
+          type: integer
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: 'ページ番号。1ページあたりの最大件数は limit で指定。未指定時は1として扱われる
+
+          '
+        schema:
+          type: integer
+      - name: search_words
+        in: query
+        required: false
+        description: '検索文字列。ワークフロー名に対して部分一致検索する。未指定時はすべてのワークフローが対象となる
+
+          '
+        schema:
+          type: string
+      - name: label_ids
+        in: query
+        required: false
+        description: 'ラベルID。未指定時はすべてのワークフローが対象となる。複数指定する場合はカンマ区切りで指定する
+
+          '
+        schema:
+          type: string
+      - name: schedule_filtering_by
+        in: query
+        required: false
+        description: 'スケジュール設定の有無。未指定時はすべてのワークフローが対象となる
+
+          - active: スケジュール設定有効のみ
+
+          - inactive: スケジュール設定無効のみ
+
+          - all: スケジュール設定に関わらずすべて
+
+          '
+        schema:
+          type: string
+          enum:
+          - active
+          - inactive
+          - all
+      - name: sort
+        in: query
+        required: false
+        description: 'ソート順。"ソート項目名:ソート順"のように指定する。ソート項目名は下記の通り。ソート項目名未指定時は更新日時によりソートされる
+
+          - name: ワークフロー名
+
+          - updated_at: 更新日時
+
+          - last_started_at: 最終実行日時
+
+          ソート順は以下の通り。ソート順未指定の場合は降順でソートされる
+
+          - asc: 昇順
+
+          - desc: 降順
+
+          '
+        schema:
+          type: string
+          enum:
+          - name:asc
+          - name:desc
+          - updated_at:asc
+          - updated_at:desc
+          - last_started_at:asc
+          - last_started_at:desc
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflows'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/export:
+    get:
+      summary: ワークフローエクスポート
+      description: 指定されたワークフローを、インポート可能な形式でエクスポートします
+      operationId: exportWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportWorkflow'
+          headers:
+            Content-Disposition:
+              description: ブラウザ向けのファイル名
+              schema:
+                type: string
+              example: attachment; filename*=UTF-8''workflow-name.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/usages:
+    get:
+      summary: ワークフロー利用状況取得
+      description: ワークフローの利用状況一覧を取得します
+      operationId: listWorkflowUsages
+      tags:
+      - Workflows
+      parameters:
+      - name: since_date
+        in: query
+        required: true
+        description: 表示期間開始日
+        schema:
+          type: string
+          format: date
+        example: '2026-01-01'
+      - name: until_date
+        in: query
+        required: true
+        description: '表示期間終了日。
+
+          表示期間開始日から30日後までを指定できる。
+
+          前日以前を指定できる
+
+          '
+        schema:
+          type: string
+          format: date
+        example: '2026-01-01'
+      - name: classification
+        in: query
+        required: false
+        description: 内訳。プロジェクトごと、または内訳なし
+        schema:
+          type: string
+          enum:
+          - none
+          - by_project
+          default: none
+      - name: project_ids
+        in: query
+        required: false
+        description: 'プロジェクトID。未指定時はすべてのプロジェクトが対象となる。複数指定する場合はカンマ区切りで指定する
+
+          '
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowUsages'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /integrations/projects/{projectId}:
+    get:
+      summary: 接続情報取得
+      description: 指定されたプロジェクト内の接続情報の一覧を取得します
+      operationId: listIntegrations
+      tags:
+      - Integrations
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      - name: service
+        in: query
+        required: false
+        description: 取得対象のサービス名。未指定時は全サービスの接続情報が対象となる
+        schema:
+          type: string
+        example: mysql
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integrations'
+              examples:
+                allServices:
+                  summary: 全サービスの接続情報
+                  value:
+                    total: 2
+                    adobe_analytics: []
+                    airtable: []
+                    amazon_redshift: []
+                    amazon_ses: []
+                    app_store_connect: []
+                    aws_s3: []
+                    azure_blob_storage: []
+                    azure_sql: []
+                    bcart: []
+                    box: []
+                    braze: []
+                    bugyo_cloud: []
+                    chatwork: []
+                    climber_cloud: []
+                    cloudsign: []
+                    collaboflow: []
+                    denodo: []
+                    dr_sum: []
+                    excel:
+                    - id: 1
+                      project_id: 2
+                      team_id: 3
+                      name: test1
+                      auth_method: oauth
+                      refreshed_at: '2026-02-20T13:00:06Z'
+                      created_at: '2025-06-25T08:58:26Z'
+                      updated_at: '0001-01-01T00:00:00Z'
+                      integration_id: 42294
+                    - id: 2
+                      project_id: 2
+                      team_id: 3
+                      name: test2
+                      auth_method: client_credentials
+                      refreshed_at: '2026-01-30T12:00:06Z'
+                      created_at: '2025-06-04T05:20:14Z'
+                      updated_at: '0001-01-01T00:00:00Z'
+                      integration_id: 40689
+                    facebook_ads: []
+                    freee: []
+                    ftp: []
+                    gmo_makeshop: []
+                    gmo_makeshop_gen2: []
+                    google_ads: []
+                    google_ad_manager: []
+                    google_analytics: []
+                    google_apis: []
+                    google_bigquery: []
+                    google_cloud_storage: []
+                    google_datastore: []
+                    google_drive: []
+                    google_lighthouse: []
+                    google_search_console: []
+                    google_spreadsheets: []
+                    hennge_one: []
+                    hubspot: []
+                    hue_workflow: []
+                    ibm_db_2: []
+                    jira: []
+                    haihai_mail: []
+                    kaonavi: []
+                    kingoftime: []
+                    kintone: []
+                    line_works: []
+                    manage_workflow: []
+                    mariadb: []
+                    marketo: []
+                    microsoft365: []
+                    miraimil: []
+                    mysql: []
+                    one_drive: []
+                    oracledatabase: []
+                    pca_cloud: []
+                    postgresql: []
+                    rtoaster_action_plus: []
+                    salesforce: []
+                    salesforce_marketing_cloud: []
+                    salesforce_pardot: []
+                    sansan: []
+                    sendgrid: []
+                    sftp: []
+                    sharepoint: []
+                    shopify: []
+                    slack: []
+                    smart_hr: []
+                    snowflake: []
+                    sqlserver: []
+                    stripe: []
+                    tableau_cloud: []
+                    trino: []
+                    twitter: []
+                    webhook_endpoint: []
+                    yahoo_ads: []
+                    zohocrm: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /integrations/{serviceName}/{integrationId}:
+    delete:
+      summary: 接続情報削除
+      description: 指定された接続情報を削除します
+      operationId: deleteIntegration
+      tags:
+      - Integrations
+      parameters:
+      - name: serviceName
+        in: path
+        required: true
+        description: 削除対象の接続情報のサービス名
+        schema:
+          type: string
+        example: mysql
+      - name: integrationId
+        in: path
+        required: true
+        description: 削除対象の接続情報のID
+        schema:
+          type: integer
+      - name: force
+        in: query
+        required: false
+        description: 'trueを指定した場合、ワークフローで利用中の接続情報であっても強制的に削除する。
+
+          未指定またはfalseの場合、ワークフローで利用中の接続情報は削除できずエラーが返される。
+
+          '
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: 成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: リソース競合。削除対象の接続情報がワークフローで利用中
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - type: object
+                  required:
+                  - workflows
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - CONFLICT
+                    workflows:
+                      type: array
+                      description: 削除対象の接続情報を利用しているワークフローの一覧
+                      items:
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          id:
+                            type: integer
+                            description: ワークフローID
+                          name:
+                            type: string
+                            description: ワークフロー名
+              examples:
+                conflict:
+                  summary: ワークフローで利用中の接続情報
+                  value:
+                    code: CONFLICT
+                    message: この接続情報はワークフローで利用されているため削除できません
+                    workflows:
+                    - id: 1
+                      name: 日次データ同期
+                    - id: 2
+                      name: 月次レポート生成
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /projects:
+    get:
+      summary: プロジェクト一覧
+      description: チーム管理者の場合は全プロジェクトを、非チーム管理者の場合はいずれかの権限を持つプロジェクト一覧を取得します
+      operationId: listProjects
+      tags:
+      - Projects
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /projects/{projectId}:
+    get:
+      summary: プロジェクト詳細
+      description: プロジェクト詳細を取得します
+      operationId: getProject
+      tags:
+      - Projects
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /projects/{projectId}/accounts:
+    get:
+      summary: アカウント一覧
+      description: 'プロジェクト内のアカウント一覧を取得します.
+
+
+        権限: チーム管理者またはプロジェクト管理者
+
+        '
+      operationId: getProjectAccounts
+      tags:
+      - Projects
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectAccounts'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /accounts/{accountId}:
+    delete:
+      summary: アカウント削除
+      description: 'アカウントを削除します.
+
+
+        権限: チーム管理者
+
+        '
+      operationId: deleteAccount
+      tags:
+      - Accounts
+      parameters:
+      - name: accountId
+        in: path
+        required: true
+        description: アカウントID
+        schema:
+          type: integer
+      - name: cascade
+        in: query
+        required: false
+        description: 'trueを指定した場合、アカウントに紐づくReckoner APIトークンが存在する場合にAPIトークンも削除する。
+
+          未指定またはfalseの場合、アカウントに紐づくReckoner APIトークンが存在する場合には削除できずエラーが返される。
+
+          '
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: 成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: リソース競合。削除対象のアカウントに紐づくReckoner APIトークンが存在
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - type: object
+                  required:
+                  - access_tokens
+                  - refresh_tokens
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - CONFLICT
+                    access_tokens:
+                      type: array
+                      description: 削除対象のアカウントに紐づくアクセストークン
+                      items:
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          id:
+                            type: integer
+                            description: アクセストークンID
+                          name:
+                            type: string
+                            description: アクセストークン名
+                    refresh_tokens:
+                      type: array
+                      description: 削除対象のアカウントに紐づくリフレッシュトークン
+                      items:
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          id:
+                            type: integer
+                            description: リフレッシュトークンID
+                          name:
+                            type: string
+                            description: リフレッシュトークン名
+              examples:
+                conflict:
+                  summary: アカウントに紐づくReckoner APIトークン情報
+                  value:
+                    code: CONFLICT
+                    message: このアカウントにはReckoner APIトークンが紐づいているため削除できません
+                    access_tokens:
+                    - id: 1
+                      name: アクセストークン
+                    refresh_tokens:
+                    - id: 1
+                      name: リフレッシュトークン
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /auth/token/refresh:
+    post:
+      summary: トークンリフレッシュ
+      description: Authorizationヘッダに指定したリフレッシュトークンからアクセストークンを発行する
+      security:
+      - BearerRefreshAuth: []
+      operationId: authTokenRefresh
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshedToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+security:
+- BearerAccessAuth: []
+components:
+  securitySchemes:
+    BearerAccessAuth:
+      type: http
+      description: アクセストークン（pat_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Access token
+    BearerRefreshAuth:
+      type: http
+      description: リフレッシュトークン（prt_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Refresh token
+  schemas:
+    WorkflowRunParameterItem:
+      type: object
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          description: パラメータ変数名
+        value:
+          type: string
+          description: パラメータ値
+    WorkflowRunParameter:
+      type: object
+      properties:
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRunParameterItem'
+    JobId:
+      type: object
+      required:
+      - job_id
+      properties:
+        job_id:
+          type: integer
+          description: 実行開始したワークフローのジョブID
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+    WorkflowJobStatus:
+      type: string
+      description: 'ワークフロージョブのステータス
+
+
+        * `SUBMITTING` - ジョブ送信中
+
+        * `RUNNABLE` - 実行前
+
+        * `RUNNING` - 実行中
+
+        * `COMPLETED` - 正常完了
+
+        * `FAILED` - 失敗
+
+        * `CANCEL_STARTED` - キャンセル処理開始
+
+        * `CANCELED` - キャンセル完了
+
+        * `SERVER_ERROR` - サーバーエラー
+
+        '
+      enum:
+      - SUBMITTING
+      - RUNNABLE
+      - RUNNING
+      - COMPLETED
+      - FAILED
+      - CANCEL_STARTED
+      - CANCELED
+      - SERVER_ERROR
+    WorkflowJobTrigger:
+      type: string
+      description: 'ワークフロージョブの実行方法
+
+
+        * `button` - ブラウザ画面上の実行ボタンによる実行
+
+        * `scheduled` - スケジューリング実行
+
+        * `webhook` - Webhook実行
+
+        * `external_api` - Reckoner APIによる実行
+
+        '
+      enum:
+      - button
+      - scheduled
+      - webhook
+      - external_api
+    WorkflowJobError:
+      type: object
+      required:
+      - task_name
+      - category
+      - subcategory
+      - message
+      properties:
+        task_name:
+          type: string
+          description: タスク名
+        category:
+          type: string
+          description: タスクのカテゴリ
+          example: source
+        subcategory:
+          type: string
+          description: タスクのサブカテゴリ
+          example: mysql
+        message:
+          type: string
+          description: エラーメッセージ
+    WorkflowJob:
+      type: object
+      required:
+      - status
+      - trigger
+      properties:
+        started_at:
+          type: string
+          format: date-time
+          description: 実行開始時間。フォーマットはISO 8601
+        ended_at:
+          type: string
+          format: date-time
+          description: 実行終了時間。フォーマットはISO 8601
+        status:
+          $ref: '#/components/schemas/WorkflowJobStatus'
+        trigger:
+          $ref: '#/components/schemas/WorkflowJobTrigger'
+        errors:
+          type: array
+          description: ワークフロージョブで発生したエラーの一覧。ワークフロージョブ失敗時のみ返却される
+          items:
+            $ref: '#/components/schemas/WorkflowJobError'
+    WorkflowJobSummary:
+      type: object
+      required:
+      - id
+      - status
+      - trigger
+      properties:
+        id:
+          type: integer
+          description: ジョブID
+        started_at:
+          type: string
+          format: date-time
+          description: 実行開始時間。フォーマットはISO 8601
+        ended_at:
+          type: string
+          format: date-time
+          description: 実行終了時間。フォーマットはISO 8601
+        status:
+          $ref: '#/components/schemas/WorkflowJobStatus'
+        trigger:
+          $ref: '#/components/schemas/WorkflowJobTrigger'
+    WorkflowJobs:
+      type: object
+      required:
+      - total
+      - jobs
+      properties:
+        total:
+          type: integer
+          description: ジョブ数
+        jobs:
+          type: array
+          description: ジョブ一覧
+          items:
+            $ref: '#/components/schemas/WorkflowJobSummary'
+    Task:
+      type: object
+      description: ワークフロー内のタスク
+      required:
+      - name
+      - category
+      - subcategory
+      - property
+      properties:
+        name:
+          description: タスクの表示名
+          type: string
+        category:
+          description: タスクのカテゴリ
+          type: string
+          enum:
+          - source
+          - transform
+          - analytics
+          - sink
+          x-enum-descriptions:
+            source: ソース(転送元)
+            transform: 変換
+            analytics: 分析
+            sink: シンク(転送先)
+        subcategory:
+          description: タスクのサブカテゴリ
+          type: string
+          example: MySQL
+        property:
+          description: タスクのプロパティ。タスクごとに個別のスキーマのJSON
+          type: object
+          additionalProperties: true
+        integration_name:
+          description: タスクで利用している接続情報の名前
+          type: string
+    TaskDependency:
+      type: object
+      description: ワークフロー内のタスクの依存関係
+      required:
+      - from
+      - to
+      properties:
+        from:
+          description: 依存元タスクの表示名
+          type: string
+        to:
+          description: 依存先タスクの表示名
+          type: string
+    WorkflowParameter:
+      type: object
+      description: ワークフローに設定されているパラメーター変数
+      required:
+      - name
+      - value
+      - is_secret
+      properties:
+        name:
+          description: パラメーター変数名
+          type: string
+        value:
+          description: パラメーター変数の値。シークレット属性である場合にはマスクされた値が返される
+          type: string
+        is_secret:
+          description: パラメーター変数がシークレット属性かどうか
+          type: boolean
+    WorkflowSchedule:
+      type: object
+      description: ワークフローのスケジュール実行設定
+      required:
+      - is_enabled
+      - cron
+      - timezone
+      properties:
+        is_enabled:
+          description: スケジュール設定が有効かどうか
+          type: boolean
+        cron:
+          description: 実行間隔をcron表記した文字列
+          type: string
+          example: '*/30 * * * *'
+        timezone:
+          description: スケジュール実行設定のタイムゾーン
+          type: string
+          example: UTC
+    WorkflowNotificationStatus:
+      type: string
+      description: 通知対象となるワークフロージョブ完了ステータス
+      enum:
+      - ALL
+      - COMPLETED
+      - FAILED
+      x-enum-descriptions:
+        ALL: 成功時および失敗時
+        COMPLETED: 成功時
+        FAILED: 失敗時
+    WorkflowNotificationEmail:
+      type: object
+      description: ワークフローに設定されているメール通知
+      required:
+      - status
+      - email
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        email:
+          type: string
+          description: 通知先メールアドレス
+    WorkflowNotificationWebhook:
+      type: object
+      description: ワークフローに設定されているWebhook通知
+      required:
+      - status
+      - url
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        url:
+          type: string
+          description: 通知先URL
+    WorkflowNotificationSlack:
+      type: object
+      description: ワークフローに設定されているSlack通知
+      required:
+      - status
+      - channel
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        channel:
+          type: string
+          description: 通知先チャンネル名
+    WorkflowNotificationMSTeams:
+      type: object
+      description: ワークフローに設定されているMicrosoft Teams通知
+      required:
+      - status
+      - team
+      - channel
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        team:
+          type: string
+          description: 通知先チーム名
+        channel:
+          type: string
+          description: 通知先チャンネル名
+    WorkflowNotifications:
+      type: object
+      description: ワークフローの通知設定
+      required:
+      - emails
+      - webhooks
+      - slacks
+      - msteams
+      properties:
+        emails:
+          type: array
+          description: メール通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationEmail'
+        webhooks:
+          type: array
+          description: Webhook通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationWebhook'
+        slacks:
+          type: array
+          description: Slack通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationSlack'
+        msteams:
+          type: array
+          description: Microsoft Teams通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationMSTeams'
+    Label:
+      type: object
+      description: ワークフローに付与されたラベル
+      required:
+      - id
+      - name
+      - description
+      properties:
+        id:
+          description: ラベルID
+          type: integer
+        name:
+          description: ラベル名
+          type: string
+        description:
+          description: 説明
+          type: string
+    Workflow:
+      type: object
+      required:
+      - id
+      - name
+      - tasks
+      - task_dependencies
+      - parameters
+      - webhooks
+      - labels
+      properties:
+        id:
+          type: integer
+          description: ワークフローID
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        task_dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDependency'
+        parameters:
+          type: array
+          description: パラメーター変数。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowParameter'
+        schedule:
+          $ref: '#/components/schemas/WorkflowSchedule'
+        webhooks:
+          type: array
+          description: 作成済みのWebhookトリガーURLの一覧。未設定の場合は空配列
+          items:
+            description: 作成済みのWebhookトリガーURL
+            type: string
+        notifications:
+          $ref: '#/components/schemas/WorkflowNotifications'
+        labels:
+          type: array
+          description: ワークフローに付与されたラベルの一覧
+          items:
+            $ref: '#/components/schemas/Label'
+    WorkflowSummary:
+      type: object
+      required:
+      - id
+      - name
+      - updated_at
+      - is_scheduled
+      - labels
+      properties:
+        id:
+          type: integer
+          description: ワークフローID
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        updated_at:
+          type: string
+          format: date-time
+          description: 最終更新日時。フォーマットはISO 8601
+        last_started_at:
+          type: string
+          format: date-time
+          description: 最終実行日時。フォーマットはISO 8601
+        is_scheduled:
+          type: boolean
+          description: スケジュール実行設定が有効かどうか
+        labels:
+          type: array
+          description: ワークフローに付与されたラベルの一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/Label'
+    Workflows:
+      type: object
+      required:
+      - total
+      properties:
+        total:
+          type: integer
+          description: ワークフロー数。フィルター条件指定時は、条件に一致するワークフロー数
+        workflows:
+          type: array
+          description: ワークフロー一覧
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+    ExportTask:
+      type: object
+      description: エクスポートしたワークフロー内のタスク
+      required:
+      - name
+      - category
+      - subcategory
+      - property
+      - position
+      properties:
+        name:
+          description: タスクの表示名
+          type: string
+        category:
+          description: タスクのカテゴリ
+          type: string
+          enum:
+          - source
+          - transform
+          - analytics
+          - sink
+          x-enum-descriptions:
+            source: ソース(転送元)
+            transform: 変換
+            analytics: 分析
+            sink: シンク(転送先)
+        subcategory:
+          description: タスクのサブカテゴリ
+          type: string
+          example: MySQL
+        position:
+          description: タスクのブラウザ画面上の位置
+          type: object
+          required:
+          - x
+          - y
+          properties:
+            x:
+              description: 横方向の座標
+              type: integer
+            y:
+              description: 縦方向の座標
+              type: integer
+        property:
+          description: タスクのプロパティ。タスクごとに個別のスキーマのJSON
+          type: object
+          additionalProperties: true
+    ExportWorkflowParameter:
+      type: object
+      description: ワークフローに設定されているパラメーター変数。エクスポート元の変数がシークレット属性の場合、値をマスクした上で非シークレット属性として扱われる
+      required:
+      - name
+      - value
+      properties:
+        name:
+          description: パラメーター変数名
+          type: string
+        value:
+          description: パラメーター変数の値。エクスポート元の値がシークレット属性である場合にはマスクされた値が返される
+          type: string
+    ExportWorkflow:
+      type: object
+      required:
+      - name
+      - type
+      - tasks
+      - dependencies
+      - parameters
+      properties:
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        type:
+          type: string
+          description: ワークフロータイプ
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportTask'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDependency'
+        parameters:
+          type: array
+          description: パラメーター変数。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/ExportWorkflowParameter'
+    WorkflowUsageTotal:
+      type: object
+      required:
+      - execution_counts
+      properties:
+        execution_counts:
+          description: ワークフロー実行回数
+          type: integer
+        usage_gigabytes:
+          description: データ利用量(GB)
+          type: number
+    WorkflowUsage:
+      type: object
+      required:
+      - workflow_counts
+      - execution_counts
+      properties:
+        workflow_counts:
+          description: ワークフロー数
+          type: integer
+        execution_counts:
+          description: ワークフロー実行回数
+          type: integer
+        usage_gigabytes:
+          description: データ利用量(GB)
+          type: number
+    WorkflowUsageClassification:
+      allOf:
+      - $ref: '#/components/schemas/WorkflowUsage'
+      - type: object
+        required:
+        - project
+        properties:
+          project:
+            type: object
+            required:
+            - id
+            - name
+            properties:
+              id:
+                description: プロジェクトID
+                type: integer
+              name:
+                description: プロジェクト名
+                type: string
+    WorkflowUsageDetail:
+      allOf:
+      - $ref: '#/components/schemas/WorkflowUsage'
+      - type: object
+        required:
+        - date
+        - classifications
+        properties:
+          date:
+            description: 対象日
+            type: string
+            format: date
+          classifications:
+            description: プロジェクト内訳。リクエストにclassification=noneを指定した場合は空配列
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkflowUsageClassification'
+    WorkflowUsages:
+      type: object
+      required:
+      - total
+      - details
+      properties:
+        total:
+          description: 利用状況合計
+          $ref: '#/components/schemas/WorkflowUsageTotal'
+        details:
+          description: 利用状況詳細
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowUsageDetail'
+    Integrations:
+      type: object
+      description: '接続情報の一覧
+
+        '
+      required:
+      - total
+      - integrations
+      properties:
+        total:
+          type: integer
+          description: 接続情報の総件数
+        integrations:
+          type: object
+          description: '各サービス名がキーであり、値は接続情報の配列であるオブジェクト。
+
+            該当するサービスの接続情報が存在しない場合、値は空配列となる。
+
+            接続情報のプロパティはサービスごとに異なり、機密情報は含まれない。
+
+            '
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              required:
+              - integration_id
+              - team_id
+              - project_id
+              - name
+              properties:
+                integration_id:
+                  type: integer
+                  description: 接続情報ID
+                team_id:
+                  type: integer
+                project_id:
+                  type: integer
+                name:
+                  type: string
+              additionalProperties: true
+    Project:
+      type: object
+      required:
+      - id
+      - name
+      - is_default
+      - saves_job_result
+      properties:
+        id:
+          type: integer
+          description: プロジェクトID
+        name:
+          type: string
+          description: プロジェクト名
+        description:
+          type: string
+          description: プロジェクト概要
+        is_default:
+          type: boolean
+          description: デフォルトプロジェクトかどうか
+        saves_job_result:
+          type: boolean
+          description: ワークフロー実行履歴データを保存するかどうか
+    Projects:
+      type: object
+      required:
+      - total
+      - projects
+      properties:
+        total:
+          type: integer
+          description: プロジェクト数
+        projects:
+          type: array
+          description: プロジェクト一覧
+          items:
+            $ref: '#/components/schemas/Project'
+    ProjectAccount:
+      type: object
+      required:
+      - id
+      - email
+      - is_team_admin
+      - roles
+      properties:
+        id:
+          type: integer
+          description: アカウントID
+        email:
+          type: string
+          description: メールアドレス
+        is_team_admin:
+          type: boolean
+          description: チーム管理者かどうか
+        roles:
+          type: array
+          description: 権限一覧
+          items:
+            type: string
+            enum:
+            - project-admin
+            - workflow-editor
+            - integration-editor
+            - read-only
+    ProjectAccounts:
+      type: object
+      required:
+      - total
+      - accounts
+      properties:
+        total:
+          type: integer
+          description: アカウント数
+        accounts:
+          type: array
+          description: アカウント一覧
+          items:
+            $ref: '#/components/schemas/ProjectAccount'
+    RefreshedToken:
+      type: object
+      description: 再発行したアクセストークン
+      required:
+      - access_token
+      - expires_at
+      properties:
+        access_token:
+          description: アクセストークン
+          type: string
+        expires_at:
+          description: 有効期限
+          type: string
+          format: date-time
+  requestBodies:
+    WorkflowRun:
+      description: ワークフロー実行時に上書きするパラメータ変数
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkflowRunParameter'
+  responses:
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - UNAUTHORIZED
+                  - TOKEN_INVALID
+                  - TOKEN_EXPIRED
+                  - TOKEN_REVOKED
+          examples:
+            unauthorized:
+              summary: 認証エラー
+              value:
+                code: UNAUTHORIZED
+                message: unauthorized
+            tokenInvalid:
+              summary: トークン不正
+              value:
+                code: TOKEN_INVALID
+                message: access token invalid
+            tokenExpired:
+              summary: トークン期限切れ
+              value:
+                code: TOKEN_EXPIRED
+                message: access token expired
+            tokenRevoked:
+              summary: トークン無効化済み
+              value:
+                code: TOKEN_REVOKED
+                message: access token revoked
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
+              value:
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    Forbidden:
+      description: 認可エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
+          examples:
+            forbidden:
+              summary: アクセス権限なし
+              value:
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
+              value:
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    InternalServerError:
+      description: 内部サーバーエラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました

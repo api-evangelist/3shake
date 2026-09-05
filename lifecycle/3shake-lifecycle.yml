@@ -1,0 +1,68 @@
+generated: '2026-09-05'
+method: searched
+source: https://developers.reckoner-api.com/reckoner-external-api.html
+searched:
+- https://reckoner.io/news/feature-update/
+- https://reckoner.io/term
+- https://3-shake.com/
+- https://reckoner.io/
+- https://www.securify.jp/
+versioning:
+  scheme: uri-path
+  current: v1
+  contract_version: 1.1.0
+  base: https://cdp-server.reckoner-api.com/api/external/v1
+  docs: https://developers.reckoner-api.com/reckoner-external-api.html
+  policy_published: false
+  note: >-
+    The major version is in the path and info.version tracks the contract revision, but no document states how long a
+    major version is supported, how a breaking change would be announced, or whether v1 and a future v2 would run
+    concurrently.
+deprecation:
+  policy_url: null
+  policy_published: false
+  sunset_header: false
+  deprecation_header: false
+  deprecated_operations: []
+  note: >-
+    Nothing to point at. No operation in the contract carries deprecated:true, no Sunset (RFC 8594) or Deprecation
+    header is documented, and the fortnightly release notes have never announced a removal — every API change since the
+    2026-01-29 launch has been additive. No Deprecation pointer is emitted because there is no policy to link to; this
+    is an absence, not a finding against the API's stability.
+sla:
+  url: null
+  uptime_target: null
+  note: >-
+    No SLA or uptime commitment is published on reckoner.io, in the terms at https://reckoner.io/term, or in the API
+    reference. The Premium tier is quoted individually and may carry one contractually.
+status_page:
+  url: null
+  probed:
+  - {url: 'https://status.reckoner.io/', result: DNS does not resolve}
+  - {url: 'https://status.3-shake.com/', result: DNS does not resolve}
+  - {url: 'https://status.securify.jp/', result: DNS does not resolve}
+  note: >-
+    No status page exists on any conventional host and none is linked from reckoner.io, 3-shake.com or securify.jp. No
+    StatusPage pointer is emitted. For an ETL product whose customers depend on scheduled overnight runs, and whose API
+    exposes no Retry-After, this is the single most consequential operational gap in the profile.
+release_cadence:
+  observed: fortnightly dated feature updates since at least 2026-01-15
+  changelog: changelog/3shake-changelog.yml
+  public_url: https://reckoner.io/news/feature-update/
+api_maturity:
+  first_public_release: '2026-01-29'
+  age_at_probe: ~7 months
+  stability_signal: >-
+    Six of the fifteen most recent release notes touch the External API and all six are additive. The contract itself is
+    well-formed: every operation has a summary, description, unique operationId and tag, and shares seven reusable
+    error responses.
+product_lifecycle_notes:
+- product: Reckoner CDP
+  status: superseded
+  evidence: >-
+    The reckoner-cdp-go / reckoner_cdp / fluent-plugin-reckoner-cdp client libraries (2019-2020) target a
+    streaming+query surface at /api/v1/streaming and /api/v1/query with a RECKONER-CDP HMAC auth scheme that appears
+    nowhere in the current contract. Both gem homepages now 404 on GitHub. The CDP console host
+    cdp-console.reckoner-api.com is still live and is the login the current product uses, so the CDP lineage survives
+    as infrastructure naming while its public client surface has been replaced by the External API.
+  note: No deprecation notice for the CDP client libraries was ever published; they simply stopped being released.

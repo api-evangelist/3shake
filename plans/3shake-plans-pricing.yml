@@ -1,0 +1,82 @@
+generated: '2026-09-05'
+method: searched
+source: https://reckoner.io/price
+plan_count: 4
+currency: JPY
+billing_period: monthly
+tax_note: prices as published on the pricing page; consult the provider for tax treatment and options
+note: >-
+  Reckoner publishes three fixed-price tiers and one quote-only tier, each with an explicit data-volume and run-count
+  quota — the two dimensions the External API's listWorkflowUsages operation reports against. The page states
+  "各プランの詳細・オプション料金はお問合せください" (contact us for plan detail and option pricing), so overage pricing is not
+  published. API access is not sold or metered separately: the External API is a property of the account, and the
+  quotas below are what an API-driven runWorkflow consumes.
+plans:
+- name: Lite
+  price: 80000
+  currency: JPY
+  period: month
+  quota:
+    data_volume: 10 GB
+    workflow_runs: 200 per month
+  features: [SaaS connectors, scheduled execution, AI assist]
+  overage: not published
+- name: Standard
+  price: 150000
+  currency: JPY
+  period: month
+  recommended: true
+  quota:
+    data_volume: 30 GB
+    workflow_runs: 500 per month
+  features: [everything in Lite, DWH/DB connectors, HTTP connector]
+  overage: not published
+- name: Pro
+  price: 200000
+  currency: JPY
+  period: month
+  quota:
+    data_volume: 50 GB
+    workflow_runs: 1000 per month
+  features: [everything in Standard, code execution, projects]
+  overage: not published
+- name: Premium
+  price: null
+  price_label: 個別お見積 (individual quote)
+  currency: JPY
+  period: month
+  quota:
+    data_volume: 個別お見積 (individual quote)
+    workflow_runs: 個別お見積 (individual quote)
+  features: [everything in Pro, custom development]
+  overage: not published
+free_tier:
+  available: false
+  trial: https://reckoner.io/free-trial
+  note: A free trial is offered through a request form; no published free plan and no self-serve credit card signup.
+other_products:
+- product: Securify
+  source: https://lp.securify.jp/pricing
+  method: searched
+  plan_count: 4
+  published_prices: 1
+  items:
+  - {name: 脆弱性診断 (Vulnerability assessment), price_label: 月額5万円〜 (from JPY 50,000/month)}
+  - {name: ASM, price_label: ASK}
+  - {name: CSPM, price_label: ASK}
+  - {name: SBOM, price_label: ASK}
+  contract_term: 12ヶ月の年間契約 (12-month annual contract)
+  note: >-
+    Four bundled plans are named (security integration management, web vulnerability countermeasures, cloud security,
+    product security) with no prices attached — quote-only. Only the vulnerability-assessment line carries a published
+    floor price.
+- product: Sreake
+  source: https://sreake.com/
+  method: searched
+  plan_count: 0
+  note: Consulting engagement, quoted per client. No published price list.
+- product: Relance
+  source: https://relance.jp/
+  method: searched
+  plan_count: 0
+  note: Talent referral service; no published rate card.

@@ -1,0 +1,139 @@
+generated: '2026-09-05'
+method: probed
+source: live GET of the named /.well-known/ path list on every host in apis.yml plus every OpenAPI servers[] host
+note: >-
+  Nine hosts probed, zero documents served. No /.well-known/ path returned a real document on any 3-shake host, so no
+  WellKnown and no SecurityTxt pointer is emitted — this file records a measured absence, not a surface. Three hosts
+  need reading with care: relance.jp is a WordPress catch-all that answers 200 with the same 80,586-byte homepage for
+  /openapi.json, /apis.json and /llms.txt (its /.well-known/* paths correctly 404); portal.securify.jp answers 200 with
+  an 8,928-byte SPA shell for the same three root paths; and cdp-server.reckoner-api.com (the Reckoner External API
+  host) answers 401 {"message":"unauthorized"} for every path including the negative control, so nothing there can be
+  read anonymously. Every host that accepted a negative-control probe returned a non-2xx for it, so no path-echoing
+  host was found.
+hit_count: 0
+path_echo_control: passed
+hosts:
+- host: https://3-shake.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 404}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://reckoner.io
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 404}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://developers.reckoner-api.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 404}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://cdp-server.reckoner-api.com
+  note: every path answers 401 unauthorized, including the negative control; nothing readable anonymously
+  documents:
+  - {path: /.well-known/security.txt, status: 401}
+  - {path: /.well-known/openid-configuration, status: 401}
+  - {path: /.well-known/oauth-protected-resource, status: 401}
+  - {path: /.well-known/agent-card.json, status: 401}
+  - {path: /apis.json, status: 401}
+  - {path: /llms.txt, status: 401}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 401}
+- host: https://www.securify.jp
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 200, file: ../llms/3shake-securify-llms.txt, note: served, but /llms.txt is not a /.well-known/ path; recorded under LLMsTxt, not WellKnown}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://scan.securify.jp
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 404}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://portal.securify.jp
+  note: SPA catch-all — /apis.json, /llms.txt and /openapi.json all return 200 with the same 8,928-byte HTML shell
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 200, note: HTML SPA shell, not a document}
+  - {path: /llms.txt, status: 200, note: HTML SPA shell, not a document}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://sreake.com
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 404}
+  - {path: /llms.txt, status: 200, file: ../llms/3shake-sreake-llms.txt, note: served, but /llms.txt is not a /.well-known/ path; recorded under LLMsTxt, not WellKnown}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}
+- host: https://relance.jp
+  note: WordPress catch-all — /openapi.json, /apis.json and /llms.txt all return 200 with the same 80,586-byte homepage
+  documents:
+  - {path: /.well-known/security.txt, status: 404}
+  - {path: /.well-known/openid-configuration, status: 404}
+  - {path: /.well-known/oauth-authorization-server, status: 404}
+  - {path: /.well-known/oauth-protected-resource, status: 404}
+  - {path: /.well-known/api-catalog, status: 404}
+  - {path: /.well-known/ai-plugin.json, status: 404}
+  - {path: /.well-known/agent-card.json, status: 404}
+  - {path: /.well-known/agent.json, status: 404}
+  - {path: /.well-known/apis.json, status: 404}
+  - {path: /apis.json, status: 200, note: HTML homepage, not a document}
+  - {path: /llms.txt, status: 200, note: HTML homepage, not a document}
+  - {path: /.well-known/3shake-negative-control-7f3ab91c.json, status: 404}

@@ -1,0 +1,49 @@
+generated: '2026-09-05'
+method: derived
+status: candidate
+source: openapi/3shake-reckoner-external-api-openapi.yml
+deployment:
+  mode: none
+  endpoint: null
+  install: null
+  package: null
+  auth: unknown
+  verified: searched
+pointer_withheld: true
+pointer_withheld_reason: >-
+  No MCPServer pointer is emitted in apis.yml. 3-shake ships no MCP server of any kind — searched the docs, the release
+  notes, the GitHub org (53 public repos), npm under @3-shake and @modelcontextprotocol, and probed every host for an
+  MCP endpoint; all misses. The tools[] below are a DERIVED candidate mapping of what an MCP server over this API could
+  expose, not a surface anyone can call. Emitting the pointer would credit the provider with an agent surface it does
+  not ship.
+search_evidence:
+- {source: 'https://developers.reckoner-api.com/reckoner-external-api.html', result: no MCP mention, status: 200}
+- {source: 'https://reckoner.io/news/feature-update/', result: 'AI features shipped (error-diagnosis AI, Reckoner AI agent workflow explanation) but no MCP server', status: 200}
+- {source: 'https://api.github.com/orgs/3-shake/repos', result: no MCP repo among 53 public repos, status: 200}
+- {source: 'registry.npmjs.org search scope:3-shake', result: one package (@3-shake/3design-ui), no MCP server, status: 200}
+note: >-
+  Worth recording as a lead rather than a gap: Reckoner already ships an AI agent inside the product (workflow
+  explanation, 2026-01-29; error-diagnosis AI beta, 2026-06-11) and a clean 15-operation OpenAPI. The distance between
+  what exists and a hosted MCP server is small. If one is ever published, the tools below are the natural surface and
+  this file should be upgraded to method: searched with a real endpoint.
+tools:
+- {name: list_projects, description: List Reckoner projects, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#listProjects', read_only: true}
+- {name: get_project, description: Get one project, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#getProject', read_only: true}
+- {name: list_project_accounts, description: List accounts in a project with their roles, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#getProjectAccounts', read_only: true}
+- {name: list_workflows, description: List workflows in a project with search, label and schedule filters, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#listWorkflows', read_only: true}
+- {name: get_workflow, description: Get one workflow with its tasks, schedule, notifications and labels, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#getWorkflow', read_only: true}
+- {name: export_workflow, description: Export a workflow definition, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#exportWorkflow', read_only: true}
+- {name: list_workflow_jobs, description: List job runs for a workflow, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#listWorkflowJobs', read_only: true}
+- {name: get_workflow_job, description: Get one job run with its status and errors, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#getWorkflowJob', read_only: true}
+- {name: list_workflow_usages, description: Read data-volume and run-count consumption, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#listWorkflowUsages', read_only: true}
+- {name: list_integrations, description: List saved service connections for a project, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#listIntegrations', read_only: true}
+- {name: run_workflow, description: Run a workflow with optional parameter overrides, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#runWorkflow', read_only: false, consequence: write, note: 'no idempotency key exists — a retry starts a second job'}
+- {name: cancel_workflow_job, description: Cancel a running workflow job, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#cancelWorkflowJobs', read_only: false, consequence: write}
+- {name: delete_integration, description: Delete a saved connection, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#deleteIntegration', read_only: false, consequence: write, note: irreversible as published}
+- {name: delete_account, description: Delete an account, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#deleteAccount', read_only: false, consequence: safety-critical, note: 'irreversible as published; should require human confirmation'}
+- {name: refresh_access_token, description: Mint a new access token from the refresh token, source_operation: 'openapi/3shake-reckoner-external-api-openapi.yml#authTokenRefresh', read_only: false, consequence: auth}
+coverage:
+  rest_operations_total: 15
+  candidate_tools: 15
+  mcp_only: 0
+  rest_only: 0

@@ -1,0 +1,62 @@
+generated: '2026-09-05'
+method: searched
+source: openapi/3shake-reckoner-external-api-openapi.yml
+docs: https://developers.reckoner-api.com/reckoner-external-api.html
+note: >-
+  Upgraded from the mechanical derive, which deduplicated the two bearer schemes into one. Both are declared in the
+  contract and they are NOT interchangeable — the access token authorises every business operation, the refresh token
+  authorises only POST /auth/token/refresh. Token prefixes (pat_ / prt_) are quoted from the schemes' own descriptions.
+summary:
+  types: [http]
+  http_schemes: [bearer]
+  api_key_in: []
+  oauth2_flows: []
+  token_prefixes: ['pat_', 'prt_']
+schemes:
+- name: BearerAccessAuth
+  type: http
+  scheme: bearer
+  bearerFormat: Access token
+  description: アクセストークン（pat_ プレフィックス） — access token, pat_ prefix
+  applies_to: default security requirement for all 14 business operations
+  sources: [openapi/3shake-reckoner-external-api-openapi.yml]
+- name: BearerRefreshAuth
+  type: http
+  scheme: bearer
+  bearerFormat: Refresh token
+  description: リフレッシュトークン（prt_ プレフィックス） — refresh token, prt_ prefix
+  applies_to: operation-level override on POST /auth/token/refresh (authTokenRefresh) only
+  sources: [openapi/3shake-reckoner-external-api-openapi.yml]
+token_lifecycle:
+  refresh_operation: authTokenRefresh
+  refresh_path: POST /auth/token/refresh
+  refresh_transport: refresh token presented in the Authorization header
+  response_fields: [access_token, expires_at]
+  expires_at_format: RFC 3339 date-time
+  revocation_signals:
+    observed_in_contract: [TOKEN_INVALID, TOKEN_EXPIRED, TOKEN_REVOKED]
+    http_status: 401
+other_apis:
+- api: Securify Scan Public API
+  scheme: public API token created in the Securify console and sent on the request
+  docs: https://help-scan.securify.jp/hc/ja/articles/25133482168345
+  method: searched
+  evidence:
+  - url: https://www.securify.jp/news/securify-update-api/
+    status: 200
+    note: >-
+      The provider's own release note describes creating and deleting API tokens in the console and calling the API to
+      start a diagnosis, returning a diagnosis ID. The step-by-step reference is a Zendesk help centre behind a
+      Cloudflare bot challenge (HTTP 403 to this crawler), so the exact header name could not be read first-hand and is
+      deliberately NOT recorded here rather than guessed.
+  - url: https://scan.securify.jp/api/v1
+    status: 401
+    note: 'unauthenticated GET returns {"title":"Unauthenticated","status":401,"detail":"無効なリクエストです。"}'
+legacy:
+- api: Reckoner CDP (legacy streaming/query surface)
+  scheme: custom HMAC-SHA256 request signing
+  header: 'Authorization: RECKONER-CDP <AccessKeyID>:<base64(HMAC-SHA256(SecretAccessKey, METHOD\nContent-MD5\nContent-Type\nDate))>'
+  credentials: Access Key ID + Secret Access Key, issued from the Management page of the Reckoner web UI
+  source: https://raw.githubusercontent.com/3-shake/reckoner-cdp-go/master/client.go
+  method: searched
+  note: Read from the provider's own published client library. Superseded by the pat_/prt_ bearer model above.

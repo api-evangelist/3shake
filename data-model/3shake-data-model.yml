@@ -1,0 +1,86 @@
+generated: '2026-09-05'
+method: derived
+source: openapi/3shake-reckoner-external-api-openapi.yml
+scope: Reckoner External API v1.1.0
+note: >-
+  Derived from the 38 component schemas and the path shapes. Reckoner has no id-prefix convention — every identifier is
+  a bare integer (workflowId, projectId, integrationId, accountId, labelId), which means an id carries no type
+  information and a client cannot tell a workflowId from a projectId by inspection. jobId is the one exception: the
+  JobId schema is the response of runWorkflow and is what getWorkflowJob and cancelWorkflowJobs take.
+entities:
+- name: Project
+  schema: Project
+  identifier: {field: id, type: integer}
+  fields: [id, name, description, is_default, saves_job_result]
+  operations: [listProjects, getProject]
+  note: The tenancy root below Team. saves_job_result controls whether job history is retained at all.
+- name: ProjectAccount
+  schema: ProjectAccount
+  identifier: {field: id, type: integer}
+  fields: [id, email, is_team_admin, roles]
+  roles_enum: [project-admin, workflow-editor, integration-editor, read-only]
+  operations: [getProjectAccounts, deleteAccount]
+- name: Workflow
+  schema: Workflow
+  identifier: {field: id, type: integer}
+  fields: [id, name, description, tasks, task_dependencies, parameters, schedule, webhooks, notifications, labels]
+  operations: [getWorkflow, listWorkflows, exportWorkflow, runWorkflow]
+- name: Task
+  schema: Task
+  identifier: {field: name, type: string}
+  fields: [name, category, subcategory, property, integration_id]
+  category_enum: [source, transform, analytics, sink]
+  note: >-
+    The unit of work inside a workflow. `property` is a free-form object whose schema differs per task type, so it is
+    not statically typed in the contract. `subcategory` names the connector (e.g. MySQL).
+- name: WorkflowJob
+  schema: WorkflowJob / WorkflowJobSummary
+  identifier: {field: jobId, schema: JobId}
+  fields: [started_at, ended_at, status, trigger, errors]
+  status_enum: [SUBMITTING, RUNNABLE, RUNNING, COMPLETED, FAILED, CANCEL_STARTED, CANCELED, SERVER_ERROR]
+  trigger_enum: [button, scheduled, webhook, external_api]
+  operations: [getWorkflowJob, listWorkflowJobs, cancelWorkflowJobs]
+- name: Integration
+  schema: Integrations (map keyed by service name)
+  identifier: {field: integration_id, type: integer}
+  fields: [integration_id, team_id, project_id, name]
+  operations: [listIntegrations, deleteIntegration]
+  note: >-
+    A saved connection to an external service. The contract states explicitly that connection properties never include
+    secrets, and the response is an object keyed by service name with per-service additional properties.
+- name: Label
+  schema: Label
+  identifier: {field: id, type: integer}
+  fields: [id, name, description]
+  operations: []
+  note: Read-only through this API; labels are created in the console and only filtered on here (label_ids).
+- name: WorkflowSchedule
+  schema: WorkflowSchedule
+  fields: [is_enabled, cron, timezone]
+  note: Cron expression plus timezone; embedded in Workflow, not separately addressable.
+- name: WorkflowUsage
+  schema: WorkflowUsage / WorkflowUsages / WorkflowUsageDetail / WorkflowUsageTotal
+  operations: [listWorkflowUsages]
+  note: Consumption reporting — the metering surface behind the GB / run-count quotas in plans/3shake-plans-pricing.yml.
+- name: WorkflowNotification
+  schema: WorkflowNotificationEmail / WorkflowNotificationWebhook / WorkflowNotificationSlack / WorkflowNotificationMSTeams
+  note: Four outbound notification channels configured per workflow. See asyncapi/3shake-reckoner-webhooks.yml.
+relationships:
+- {from: Project, to: Workflow, kind: has_many, via: projectId, evidence: "GET /workflows/projects/{projectId}"}
+- {from: Project, to: ProjectAccount, kind: has_many, via: projectId, evidence: "GET /projects/{projectId}/accounts"}
+- {from: Project, to: Integration, kind: has_many, via: project_id, evidence: "GET /integrations/projects/{projectId} + Integration.project_id"}
+- {from: Workflow, to: Task, kind: has_many, via: "tasks[]", evidence: "Workflow.tasks $ref Task"}
+- {from: Workflow, to: TaskDependency, kind: has_many, via: "task_dependencies[]", evidence: "Workflow.task_dependencies $ref TaskDependency"}
+- {from: Workflow, to: WorkflowParameter, kind: has_many, via: "parameters[]", evidence: "Workflow.parameters $ref WorkflowParameter"}
+- {from: Workflow, to: WorkflowSchedule, kind: has_one, via: schedule, evidence: "Workflow.schedule $ref WorkflowSchedule"}
+- {from: Workflow, to: WorkflowNotifications, kind: has_one, via: notifications, evidence: "WorkflowNotifications $ref"}
+- {from: Workflow, to: Label, kind: has_many, via: "labels[]", evidence: "Workflow.labels $ref Label"}
+- {from: Workflow, to: WorkflowJob, kind: has_many, via: workflowId, evidence: "GET /workflows/{workflowId}/jobs"}
+- {from: WorkflowJob, to: WorkflowJobError, kind: has_many, via: "errors[]", evidence: "WorkflowJob.errors $ref WorkflowJobError"}
+- {from: Task, to: Integration, kind: belongs_to, via: integration_id, evidence: "Task.integration_id"}
+- {from: Integration, to: Team, kind: belongs_to, via: team_id, evidence: "Integration.team_id (Team itself is not addressable through this API)"}
+unmodelled:
+- entity: Team
+  note: >-
+    team_id appears on Integration but no Team resource, operation or schema exists. The tenancy root above Project is
+    referenced and never described — the one dangling reference in the contract.

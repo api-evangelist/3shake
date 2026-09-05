@@ -1,0 +1,91 @@
+generated: '2026-09-05'
+method: derived
+source: openapi/3shake-reckoner-external-api-openapi.yml
+searched:
+- https://3-shake.com/isms/
+- https://3-shake.com/security-policy/
+- https://3-shake.com/compliance/
+standards:
+- id: openapi-3.0
+  conforms: true
+  evidence: 'openapi: 3.0.3 declared in the Reckoner External API contract, 15 operations, 38 component schemas'
+- id: oauth2
+  conforms: false
+  evidence: no oauth2 securityScheme is declared; auth is a bearer token with a proprietary refresh operation
+- id: oidc
+  conforms: false
+  evidence: no openIdConnect securityScheme and no /.well-known/openid-configuration on any 3-shake host (all 404/401)
+- id: rfc6750-bearer
+  conforms: true
+  evidence: 'components.securitySchemes.BearerAccessAuth type http, scheme bearer, presented in the Authorization header'
+- id: rfc9457-problem-details
+  conforms: false
+  evidence: >-
+    Reckoner returns a vendor {code,message} envelope as application/json — no type/title/instance member and not
+    application/problem+json. Note the sibling Securify Scan API DOES return an RFC 9457-shaped {title,status,detail}
+    body (observed 401 at https://scan.securify.jp/api/v1) but also serves it as application/json, so neither product
+    conforms fully.
+- id: rfc9110-status-semantics
+  conforms: true
+  evidence: >-
+    Correct and unusually granular status use — 402 for an inactive subscription distinct from 403 for a role or plan
+    boundary, 429 for rate limiting, and FEATURE_NOT_AVAILABLE separated from FORBIDDEN inside 403.
+- id: idempotency
+  conforms: false
+  evidence: no Idempotency-Key header, parameter or extension anywhere in the contract; four mutating operations exposed
+- id: pagination
+  conforms: true
+  evidence: 'limit (max 100) + page query parameters on listWorkflowJobs and listWorkflows, with a `total` in the envelope'
+  partial: true
+  note: Only 2 of the 6 collection-returning operations paginate; the other four are unbounded.
+- id: json-api
+  conforms: false
+  evidence: plain JSON resource representations, no JSON:API document structure
+- id: rfc8594-sunset-header
+  conforms: false
+  evidence: no Sunset or Deprecation header is documented and no operation carries deprecated:true
+- id: semver
+  conforms: true
+  evidence: 'info.version 1.1.0; the URI carries the major version as /api/external/v1'
+  partial: true
+  note: The version string is semver-shaped; no published policy states what a major bump would mean for consumers.
+- id: cron
+  conforms: true
+  evidence: 'WorkflowSchedule.cron is a standard 5-field cron expression (example "*/30 * * * *") plus an IANA timezone'
+- id: iso8601
+  conforms: true
+  evidence: 'WorkflowJob.started_at / ended_at are format:date-time, RefreshedToken.expires_at is format:date-time'
+domain_standards:
+  market: data integration / ETL / iPaaS
+  finding: none-applicable
+  note: >-
+    REWARD-ONLY and correctly empty. The iPaaS market has no adopted cross-vendor contract standard the way identity has
+    SCIM or banking has ISO 20022 — a Reckoner workflow is a proprietary task graph (Task.category source/transform/
+    analytics/sink with a per-connector `property` object), and no interoperable pipeline-definition standard is
+    declared or implied. Nothing was invented to fill this slot.
+compliance_program:
+  published: true
+  certifications:
+  - name: ISMS (ISO/IEC 27001:2013, JIS Q 27001:2014)
+    registration: IS 752246
+    registered: '2021-10-06'
+    scope: >-
+      SRE consulting, security consulting services, system engineering services, ETL service development and
+      operations, and computer software development, operation and maintenance
+    source: https://3-shake.com/isms/
+    verified: '2026-09-05'
+  security_policy: https://3-shake.com/security-policy/
+  compliance_guideline: https://3-shake.com/compliance/
+  not_found:
+  - SOC 2
+  - ISO/IEC 27017
+  - ISO/IEC 27018
+  - PCI DSS
+  - Privacy Mark
+  - FedRAMP
+  - trust centre / trust portal
+  note: >-
+    The ISMS certificate is stated on the company's own site with a registration number and date, so a Compliance
+    pointer is emitted. No trust centre, no SOC 2 report request flow and no vulnerability-disclosure programme was
+    found on any host — probe-security-programs.py returned vdp=none trust=none — so no TrustCenter and no Security
+    pointer is emitted.

@@ -1,0 +1,17 @@
+generated: '2026-09-05'
+method: generated
+source: openapi/3shake-reckoner-external-api-openapi.yml
+note: >-
+  Generated from the provider's own contract. Every operationId referenced in these skills was grepped out of
+  openapi/3shake-reckoner-external-api-openapi.yml — none is invented. No provider-published AGENTS.md or skill file was
+  found on any 3-shake host. Only the Reckoner External API is covered; the Securify Scan public API has no
+  machine-readable contract to ground a skill in, so none was written for it.
+skills:
+- file: 3shake-run-reckoner-workflow.md
+  name: Run a Reckoner workflow and wait for the result
+  api: openapi/3shake-reckoner-external-api-openapi.yml
+  operations: [listProjects, listWorkflows, runWorkflow, getWorkflowJob, cancelWorkflowJobs, authTokenRefresh]
+- file: 3shake-audit-reckoner-connections.md
+  name: Audit and clean up Reckoner connections and accounts
+  api: openapi/3shake-reckoner-external-api-openapi.yml
+  operations: [listProjects, getProject, listIntegrations, deleteIntegration, getProjectAccounts, deleteAccount, listWorkflows, getWorkflow]
