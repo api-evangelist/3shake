@@ -24,7 +24,7 @@ tags:
 - Data Integration
 - ETL
 - iPaaS
-- Workflow Automation
+- Workflow-Automation
 - Vulnerability Scanning
 - Attack Surface Management
 - Cloud Security
@@ -47,58 +47,14 @@ tags_raw:
 - kubernetes
 - japan
 apis:
-- name: Reckoner External API
-  description: >-
-    Public REST API for Reckoner, 3-shake's no-code ETL / data-integration SaaS. Fifteen operations across five tag
-    groups let an external system run a workflow with parameter overrides, poll or cancel the resulting job, list and
-    export workflow definitions, read workflow usage (data volume and run counts), list and delete connection
-    (integration) records, list projects and project accounts, delete an account, and refresh an access token. Bearer
-    auth with a `pat_`-prefixed access token; a `prt_`-prefixed refresh token mints new access tokens.
-  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
-  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
-  image: https://reckoner.io/wp-content/uploads/2022/10/reckoner_ogp_221025.webp
-  tags:
-  - Data Integration
-  - ETL
-  - iPaaS
-  - Workflow Automation
-  tags_raw:
-  - data-integration
-  - etl
-  - ipaas
-  - workflow-automation
-  properties:
-  - type: OpenAPI
-    url: openapi/3shake-reckoner-external-api-openapi.yml
-  - type: APIReference
-    url: https://developers.reckoner-api.com/reckoner-external-api.html
-  - type: Documentation
-    url: https://help.reckoner-api.com/hc/ja
-  - type: Authentication
-    url: authentication/3shake-authentication.yml
-  - type: Conventions
-    url: conventions/3shake-conventions.yml
-  - type: ErrorCatalog
-    url: errors/3shake-problem-types.yml
-  - type: DataModel
-    url: data-model/3shake-data-model.yml
-  - type: Overlay
-    url: overlays/3shake-reckoner-external-api-overlay.yaml
-  - type: RateLimits
-    url: rate-limits/3shake-rate-limits.yml
-  - type: Webhooks
-    url: asyncapi/3shake-reckoner-webhooks.yml
-  - type: AgentSkill
-    url: skills/_index.yml
-  - type: Login
-    url: https://cdp-console.reckoner-api.com/login
 - name: Securify Scan Public API
   description: >-
-    Public API for Securify Scan, 3-shake's automated vulnerability-diagnosis and ASM platform. A tenant creates a
-    public API token in the console and calls the API to start a diagnosis, typically from a CD pipeline after a
-    staging deploy; a diagnosis ID is returned on success. The host answers unauthenticated calls with an
-    RFC 9457-shaped problem body. The reference documentation is a Zendesk help centre that sits behind a Cloudflare
-    bot challenge, so no machine-readable contract could be harvested for this API.
+    Public API for Securify Scan, 3-shake's automated vulnerability-diagnosis and ASM platform. A tenant
+    creates a public API token in the console and calls the API to start a diagnosis, typically from a
+    CD pipeline after a staging deploy; a diagnosis ID is returned on success. The host answers unauthenticated
+    calls with an RFC 9457-shaped problem body. The reference documentation is a Zendesk help centre that
+    sits behind a Cloudflare bot challenge, so no machine-readable contract could be harvested for this
+    API.
   humanURL: https://help-scan.securify.jp/hc/ja/articles/25133482168345
   baseURL: https://scan.securify.jp/api/v1
   image: https://3-shake.com/wp-content/uploads/2020/01/20200124_OGP.jpg
@@ -117,12 +73,154 @@ apis:
     url: https://help-scan.securify.jp/hc/ja
   - type: Login
     url: https://portal.securify.jp/
+- aid: 3shake:3shake-accounts-api
+  name: 3-shake Accounts API
+  description: The Accounts API from 3-shake — 1 operation(s) for accounts.
+  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
+  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
+  tags:
+  - Accounts
+  properties:
+  - type: OpenAPI
+    url: openapi/3shake-accounts-api-openapi.yml
+  - type: APIReference
+    url: https://developers.reckoner-api.com/reckoner-external-api.html
+  - type: Documentation
+    url: https://help.reckoner-api.com/hc/ja
+  - type: Authentication
+    url: authentication/3shake-authentication.yml
+  - type: Conventions
+    url: conventions/3shake-conventions.yml
+  - type: ErrorCatalog
+    url: errors/3shake-problem-types.yml
+  - type: DataModel
+    url: data-model/3shake-data-model.yml
+  - type: RateLimits
+    url: rate-limits/3shake-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/3shake-reckoner-webhooks.yml
+  - type: Login
+    url: https://cdp-console.reckoner-api.com/login
+- aid: 3shake:3shake-auth-api
+  name: 3-shake Auth API
+  description: The Auth API from 3-shake — 1 operation(s) for auth.
+  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
+  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
+  tags:
+  - Auth
+  properties:
+  - type: OpenAPI
+    url: openapi/3shake-auth-api-openapi.yml
+  - type: APIReference
+    url: https://developers.reckoner-api.com/reckoner-external-api.html
+  - type: Documentation
+    url: https://help.reckoner-api.com/hc/ja
+  - type: Authentication
+    url: authentication/3shake-authentication.yml
+  - type: Conventions
+    url: conventions/3shake-conventions.yml
+  - type: ErrorCatalog
+    url: errors/3shake-problem-types.yml
+  - type: DataModel
+    url: data-model/3shake-data-model.yml
+  - type: RateLimits
+    url: rate-limits/3shake-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/3shake-reckoner-webhooks.yml
+  - type: Login
+    url: https://cdp-console.reckoner-api.com/login
+- aid: 3shake:3shake-integrations-api
+  name: 3-shake Integrations API
+  description: The Integrations API from 3-shake — 2 operation(s) for integrations.
+  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
+  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
+  tags:
+  - Integrations
+  properties:
+  - type: OpenAPI
+    url: openapi/3shake-integrations-api-openapi.yml
+  - type: APIReference
+    url: https://developers.reckoner-api.com/reckoner-external-api.html
+  - type: Documentation
+    url: https://help.reckoner-api.com/hc/ja
+  - type: Authentication
+    url: authentication/3shake-authentication.yml
+  - type: Conventions
+    url: conventions/3shake-conventions.yml
+  - type: ErrorCatalog
+    url: errors/3shake-problem-types.yml
+  - type: DataModel
+    url: data-model/3shake-data-model.yml
+  - type: RateLimits
+    url: rate-limits/3shake-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/3shake-reckoner-webhooks.yml
+  - type: Login
+    url: https://cdp-console.reckoner-api.com/login
+- aid: 3shake:3shake-projects-api
+  name: 3-shake Projects API
+  description: The Projects API from 3-shake — 3 operation(s) for projects.
+  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
+  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
+  tags:
+  - Projects
+  properties:
+  - type: OpenAPI
+    url: openapi/3shake-projects-api-openapi.yml
+  - type: APIReference
+    url: https://developers.reckoner-api.com/reckoner-external-api.html
+  - type: Documentation
+    url: https://help.reckoner-api.com/hc/ja
+  - type: Authentication
+    url: authentication/3shake-authentication.yml
+  - type: Conventions
+    url: conventions/3shake-conventions.yml
+  - type: ErrorCatalog
+    url: errors/3shake-problem-types.yml
+  - type: DataModel
+    url: data-model/3shake-data-model.yml
+  - type: RateLimits
+    url: rate-limits/3shake-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/3shake-reckoner-webhooks.yml
+  - type: Login
+    url: https://cdp-console.reckoner-api.com/login
+- aid: 3shake:3shake-workflows-api
+  name: 3-shake Workflows API
+  description: The Workflows API from 3-shake — 8 operation(s) for workflows.
+  humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
+  baseURL: https://cdp-server.reckoner-api.com/api/external/v1
+  tags:
+  - Workflows
+  properties:
+  - type: OpenAPI
+    url: openapi/3shake-workflows-api-openapi.yml
+  - type: APIReference
+    url: https://developers.reckoner-api.com/reckoner-external-api.html
+  - type: Documentation
+    url: https://help.reckoner-api.com/hc/ja
+  - type: Authentication
+    url: authentication/3shake-authentication.yml
+  - type: Conventions
+    url: conventions/3shake-conventions.yml
+  - type: ErrorCatalog
+    url: errors/3shake-problem-types.yml
+  - type: DataModel
+    url: data-model/3shake-data-model.yml
+  - type: RateLimits
+    url: rate-limits/3shake-rate-limits.yml
+  - type: Webhooks
+    url: asyncapi/3shake-reckoner-webhooks.yml
+  - type: Login
+    url: https://cdp-console.reckoner-api.com/login
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
 common:
+- type: Overlay
+  url: overlays/3shake-reckoner-external-api-overlay.yaml
 - type: AgenticAccess
   url: agentic-access/3shake-agentic-access.yml
 - type: Website
