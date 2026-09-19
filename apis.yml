@@ -79,6 +79,8 @@ apis:
   humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
   baseURL: https://cdp-server.reckoner-api.com/api/external/v1
   tags:
+  - Account
+  tags_raw:
   - Accounts
   properties:
   - type: OpenAPI
@@ -107,6 +109,8 @@ apis:
   humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
   baseURL: https://cdp-server.reckoner-api.com/api/external/v1
   tags:
+  - Authentication
+  tags_raw:
   - Auth
   properties:
   - type: OpenAPI
@@ -135,6 +139,8 @@ apis:
   humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
   baseURL: https://cdp-server.reckoner-api.com/api/external/v1
   tags:
+  - Integration
+  tags_raw:
   - Integrations
   properties:
   - type: OpenAPI
@@ -163,6 +169,8 @@ apis:
   humanURL: https://developers.reckoner-api.com/reckoner-external-api.html
   baseURL: https://cdp-server.reckoner-api.com/api/external/v1
   tags:
+  - Project
+  tags_raw:
   - Projects
   properties:
   - type: OpenAPI
