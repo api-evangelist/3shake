@@ -1,0 +1,1245 @@
+openapi: 3.2.0
+info:
+  title: Reckoner External Workflows API
+  description: Reckoner API 仕様
+  version: 1.1.0
+servers:
+- url: https://cdp-server.reckoner-api.com/api/external/v1
+  description: Reckoner API サーバー
+security:
+- BearerAccessAuth: []
+tags:
+- name: Workflows
+paths:
+  /workflows/{workflowId}/run:
+    post:
+      summary: ワークフロー実行
+      description: 指定されたワークフローを実行します
+      operationId: runWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      requestBody:
+        $ref: '#/components/requestBodies/WorkflowRun'
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobId'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs/{jobId}:
+    get:
+      summary: ワークフロージョブ実行結果取得
+      description: 指定されたワークフロージョブの実行結果を取得します
+      operationId: getWorkflowJob
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: jobId
+        in: path
+        required: true
+        description: ワークフロージョブID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowJob'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs:
+    get:
+      summary: ワークフロージョブ実行結果一覧取得
+      description: 指定されたワークフローのジョブ実行結果一覧を取得します
+      operationId: listWorkflowJobs
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: 1ページあたりの最大件数。未指定時は100として扱われる
+        schema:
+          type: integer
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: 'ページ番号。1ページあたりの最大件数は limit で指定。未指定時は1として扱われる
+
+          '
+        schema:
+          type: integer
+      - name: started_at
+        in: query
+        required: false
+        description: ジョブの開始日。タイムゾーンはJST。指定した日付以降に開始したジョブのみ返却する
+        schema:
+          type: string
+          format: date
+          example: '2026-01-01'
+      - name: ended_at
+        in: query
+        required: false
+        description: ジョブの終了日。タイムゾーンはJST。指定した日付以前に終了したジョブのみ返却する
+        schema:
+          type: string
+          format: date
+          example: '2026-01-01'
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowJobs'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/jobs/{jobId}/cancel:
+    put:
+      summary: ワークフロージョブキャンセル
+      description: '指定されたワークフロージョブをキャンセルします.
+
+        ジョブがすでに完了している場合、成功として扱いステータスコード 200 を返却します.'
+      operationId: cancelWorkflowJobs
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      - name: jobId
+        in: path
+        required: true
+        description: ワークフロージョブID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}:
+    get:
+      summary: ワークフロー取得
+      description: 指定されたワークフローの詳細情報を取得します
+      operationId: getWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflow'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/projects/{projectId}:
+    get:
+      summary: ワークフロー一覧取得
+      description: 指定されたプロジェクト内のワークフローの一覧を取得します
+      operationId: listWorkflows
+      tags:
+      - Workflows
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      - name: limit
+        in: query
+        required: false
+        description: 1ページあたりの最大件数。未指定時は100として扱われる
+        schema:
+          type: integer
+          maximum: 100
+      - name: page
+        in: query
+        required: false
+        description: 'ページ番号。1ページあたりの最大件数は limit で指定。未指定時は1として扱われる
+
+          '
+        schema:
+          type: integer
+      - name: search_words
+        in: query
+        required: false
+        description: '検索文字列。ワークフロー名に対して部分一致検索する。未指定時はすべてのワークフローが対象となる
+
+          '
+        schema:
+          type: string
+      - name: label_ids
+        in: query
+        required: false
+        description: 'ラベルID。未指定時はすべてのワークフローが対象となる。複数指定する場合はカンマ区切りで指定する
+
+          '
+        schema:
+          type: string
+      - name: schedule_filtering_by
+        in: query
+        required: false
+        description: 'スケジュール設定の有無。未指定時はすべてのワークフローが対象となる
+
+          - active: スケジュール設定有効のみ
+
+          - inactive: スケジュール設定無効のみ
+
+          - all: スケジュール設定に関わらずすべて
+
+          '
+        schema:
+          type: string
+          enum:
+          - active
+          - inactive
+          - all
+      - name: sort
+        in: query
+        required: false
+        description: 'ソート順。"ソート項目名:ソート順"のように指定する。ソート項目名は下記の通り。ソート項目名未指定時は更新日時によりソートされる
+
+          - name: ワークフロー名
+
+          - updated_at: 更新日時
+
+          - last_started_at: 最終実行日時
+
+          ソート順は以下の通り。ソート順未指定の場合は降順でソートされる
+
+          - asc: 昇順
+
+          - desc: 降順
+
+          '
+        schema:
+          type: string
+          enum:
+          - name:asc
+          - name:desc
+          - updated_at:asc
+          - updated_at:desc
+          - last_started_at:asc
+          - last_started_at:desc
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workflows'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/{workflowId}/export:
+    get:
+      summary: ワークフローエクスポート
+      description: 指定されたワークフローを、インポート可能な形式でエクスポートします
+      operationId: exportWorkflow
+      tags:
+      - Workflows
+      parameters:
+      - name: workflowId
+        in: path
+        required: true
+        description: ワークフローID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportWorkflow'
+          headers:
+            Content-Disposition:
+              description: ブラウザ向けのファイル名
+              schema:
+                type: string
+              example: attachment; filename*=UTF-8''workflow-name.json
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /workflows/usages:
+    get:
+      summary: ワークフロー利用状況取得
+      description: ワークフローの利用状況一覧を取得します
+      operationId: listWorkflowUsages
+      tags:
+      - Workflows
+      parameters:
+      - name: since_date
+        in: query
+        required: true
+        description: 表示期間開始日
+        schema:
+          type: string
+          format: date
+        example: '2026-01-01'
+      - name: until_date
+        in: query
+        required: true
+        description: '表示期間終了日。
+
+          表示期間開始日から30日後までを指定できる。
+
+          前日以前を指定できる
+
+          '
+        schema:
+          type: string
+          format: date
+        example: '2026-01-01'
+      - name: classification
+        in: query
+        required: false
+        description: 内訳。プロジェクトごと、または内訳なし
+        schema:
+          type: string
+          enum:
+          - none
+          - by_project
+          default: none
+      - name: project_ids
+        in: query
+        required: false
+        description: 'プロジェクトID。未指定時はすべてのプロジェクトが対象となる。複数指定する場合はカンマ区切りで指定する
+
+          '
+        schema:
+          type: string
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowUsages'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  schemas:
+    WorkflowJobError:
+      type: object
+      required:
+      - task_name
+      - category
+      - subcategory
+      - message
+      properties:
+        task_name:
+          type: string
+          description: タスク名
+        category:
+          type: string
+          description: タスクのカテゴリ
+          example: source
+        subcategory:
+          type: string
+          description: タスクのサブカテゴリ
+          example: mysql
+        message:
+          type: string
+          description: エラーメッセージ
+    WorkflowJobTrigger:
+      type: string
+      description: 'ワークフロージョブの実行方法
+
+
+        * `button` - ブラウザ画面上の実行ボタンによる実行
+
+        * `scheduled` - スケジューリング実行
+
+        * `webhook` - Webhook実行
+
+        * `external_api` - Reckoner APIによる実行
+
+        '
+      enum:
+      - button
+      - scheduled
+      - webhook
+      - external_api
+    Workflows:
+      type: object
+      required:
+      - total
+      properties:
+        total:
+          type: integer
+          description: ワークフロー数。フィルター条件指定時は、条件に一致するワークフロー数
+        workflows:
+          type: array
+          description: ワークフロー一覧
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+    WorkflowNotificationWebhook:
+      type: object
+      description: ワークフローに設定されているWebhook通知
+      required:
+      - status
+      - url
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        url:
+          type: string
+          description: 通知先URL
+    WorkflowSummary:
+      type: object
+      required:
+      - id
+      - name
+      - updated_at
+      - is_scheduled
+      - labels
+      properties:
+        id:
+          type: integer
+          description: ワークフローID
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        updated_at:
+          type: string
+          format: date-time
+          description: 最終更新日時。フォーマットはISO 8601
+        last_started_at:
+          type: string
+          format: date-time
+          description: 最終実行日時。フォーマットはISO 8601
+        is_scheduled:
+          type: boolean
+          description: スケジュール実行設定が有効かどうか
+        labels:
+          type: array
+          description: ワークフローに付与されたラベルの一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/Label'
+    WorkflowJobSummary:
+      type: object
+      required:
+      - id
+      - status
+      - trigger
+      properties:
+        id:
+          type: integer
+          description: ジョブID
+        started_at:
+          type: string
+          format: date-time
+          description: 実行開始時間。フォーマットはISO 8601
+        ended_at:
+          type: string
+          format: date-time
+          description: 実行終了時間。フォーマットはISO 8601
+        status:
+          $ref: '#/components/schemas/WorkflowJobStatus'
+        trigger:
+          $ref: '#/components/schemas/WorkflowJobTrigger'
+    JobId:
+      type: object
+      required:
+      - job_id
+      properties:
+        job_id:
+          type: integer
+          description: 実行開始したワークフローのジョブID
+    WorkflowUsages:
+      type: object
+      required:
+      - total
+      - details
+      properties:
+        total:
+          description: 利用状況合計
+          $ref: '#/components/schemas/WorkflowUsageTotal'
+        details:
+          description: 利用状況詳細
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowUsageDetail'
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+    ExportTask:
+      type: object
+      description: エクスポートしたワークフロー内のタスク
+      required:
+      - name
+      - category
+      - subcategory
+      - property
+      - position
+      properties:
+        name:
+          description: タスクの表示名
+          type: string
+        category:
+          description: タスクのカテゴリ
+          type: string
+          enum:
+          - source
+          - transform
+          - analytics
+          - sink
+          x-enum-descriptions:
+            source: ソース(転送元)
+            transform: 変換
+            analytics: 分析
+            sink: シンク(転送先)
+        subcategory:
+          description: タスクのサブカテゴリ
+          type: string
+          example: MySQL
+        position:
+          description: タスクのブラウザ画面上の位置
+          type: object
+          required:
+          - x
+          - y
+          properties:
+            x:
+              description: 横方向の座標
+              type: integer
+            y:
+              description: 縦方向の座標
+              type: integer
+        property:
+          description: タスクのプロパティ。タスクごとに個別のスキーマのJSON
+          type: object
+          additionalProperties: true
+    ExportWorkflowParameter:
+      type: object
+      description: ワークフローに設定されているパラメーター変数。エクスポート元の変数がシークレット属性の場合、値をマスクした上で非シークレット属性として扱われる
+      required:
+      - name
+      - value
+      properties:
+        name:
+          description: パラメーター変数名
+          type: string
+        value:
+          description: パラメーター変数の値。エクスポート元の値がシークレット属性である場合にはマスクされた値が返される
+          type: string
+    Workflow:
+      type: object
+      required:
+      - id
+      - name
+      - tasks
+      - task_dependencies
+      - parameters
+      - webhooks
+      - labels
+      properties:
+        id:
+          type: integer
+          description: ワークフローID
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+        task_dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDependency'
+        parameters:
+          type: array
+          description: パラメーター変数。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowParameter'
+        schedule:
+          $ref: '#/components/schemas/WorkflowSchedule'
+        webhooks:
+          type: array
+          description: 作成済みのWebhookトリガーURLの一覧。未設定の場合は空配列
+          items:
+            description: 作成済みのWebhookトリガーURL
+            type: string
+        notifications:
+          $ref: '#/components/schemas/WorkflowNotifications'
+        labels:
+          type: array
+          description: ワークフローに付与されたラベルの一覧
+          items:
+            $ref: '#/components/schemas/Label'
+    WorkflowNotificationStatus:
+      type: string
+      description: 通知対象となるワークフロージョブ完了ステータス
+      enum:
+      - ALL
+      - COMPLETED
+      - FAILED
+      x-enum-descriptions:
+        ALL: 成功時および失敗時
+        COMPLETED: 成功時
+        FAILED: 失敗時
+    WorkflowUsageClassification:
+      allOf:
+      - $ref: '#/components/schemas/WorkflowUsage'
+      - type: object
+        required:
+        - project
+        properties:
+          project:
+            type: object
+            required:
+            - id
+            - name
+            properties:
+              id:
+                description: プロジェクトID
+                type: integer
+              name:
+                description: プロジェクト名
+                type: string
+    WorkflowUsage:
+      type: object
+      required:
+      - workflow_counts
+      - execution_counts
+      properties:
+        workflow_counts:
+          description: ワークフロー数
+          type: integer
+        execution_counts:
+          description: ワークフロー実行回数
+          type: integer
+        usage_gigabytes:
+          description: データ利用量(GB)
+          type: number
+    WorkflowSchedule:
+      type: object
+      description: ワークフローのスケジュール実行設定
+      required:
+      - is_enabled
+      - cron
+      - timezone
+      properties:
+        is_enabled:
+          description: スケジュール設定が有効かどうか
+          type: boolean
+        cron:
+          description: 実行間隔をcron表記した文字列
+          type: string
+          example: '*/30 * * * *'
+        timezone:
+          description: スケジュール実行設定のタイムゾーン
+          type: string
+          example: UTC
+    WorkflowUsageTotal:
+      type: object
+      required:
+      - execution_counts
+      properties:
+        execution_counts:
+          description: ワークフロー実行回数
+          type: integer
+        usage_gigabytes:
+          description: データ利用量(GB)
+          type: number
+    WorkflowUsageDetail:
+      allOf:
+      - $ref: '#/components/schemas/WorkflowUsage'
+      - type: object
+        required:
+        - date
+        - classifications
+        properties:
+          date:
+            description: 対象日
+            type: string
+            format: date
+          classifications:
+            description: プロジェクト内訳。リクエストにclassification=noneを指定した場合は空配列
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkflowUsageClassification'
+    WorkflowParameter:
+      type: object
+      description: ワークフローに設定されているパラメーター変数
+      required:
+      - name
+      - value
+      - is_secret
+      properties:
+        name:
+          description: パラメーター変数名
+          type: string
+        value:
+          description: パラメーター変数の値。シークレット属性である場合にはマスクされた値が返される
+          type: string
+        is_secret:
+          description: パラメーター変数がシークレット属性かどうか
+          type: boolean
+    TaskDependency:
+      type: object
+      description: ワークフロー内のタスクの依存関係
+      required:
+      - from
+      - to
+      properties:
+        from:
+          description: 依存元タスクの表示名
+          type: string
+        to:
+          description: 依存先タスクの表示名
+          type: string
+    Label:
+      type: object
+      description: ワークフローに付与されたラベル
+      required:
+      - id
+      - name
+      - description
+      properties:
+        id:
+          description: ラベルID
+          type: integer
+        name:
+          description: ラベル名
+          type: string
+        description:
+          description: 説明
+          type: string
+    WorkflowNotificationEmail:
+      type: object
+      description: ワークフローに設定されているメール通知
+      required:
+      - status
+      - email
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        email:
+          type: string
+          description: 通知先メールアドレス
+    WorkflowRunParameterItem:
+      type: object
+      required:
+      - name
+      - value
+      properties:
+        name:
+          type: string
+          description: パラメータ変数名
+        value:
+          type: string
+          description: パラメータ値
+    WorkflowRunParameter:
+      type: object
+      properties:
+        parameters:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRunParameterItem'
+    Task:
+      type: object
+      description: ワークフロー内のタスク
+      required:
+      - name
+      - category
+      - subcategory
+      - property
+      properties:
+        name:
+          description: タスクの表示名
+          type: string
+        category:
+          description: タスクのカテゴリ
+          type: string
+          enum:
+          - source
+          - transform
+          - analytics
+          - sink
+          x-enum-descriptions:
+            source: ソース(転送元)
+            transform: 変換
+            analytics: 分析
+            sink: シンク(転送先)
+        subcategory:
+          description: タスクのサブカテゴリ
+          type: string
+          example: MySQL
+        property:
+          description: タスクのプロパティ。タスクごとに個別のスキーマのJSON
+          type: object
+          additionalProperties: true
+        integration_name:
+          description: タスクで利用している接続情報の名前
+          type: string
+    WorkflowNotificationSlack:
+      type: object
+      description: ワークフローに設定されているSlack通知
+      required:
+      - status
+      - channel
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        channel:
+          type: string
+          description: 通知先チャンネル名
+    WorkflowJobStatus:
+      type: string
+      description: 'ワークフロージョブのステータス
+
+
+        * `SUBMITTING` - ジョブ送信中
+
+        * `RUNNABLE` - 実行前
+
+        * `RUNNING` - 実行中
+
+        * `COMPLETED` - 正常完了
+
+        * `FAILED` - 失敗
+
+        * `CANCEL_STARTED` - キャンセル処理開始
+
+        * `CANCELED` - キャンセル完了
+
+        * `SERVER_ERROR` - サーバーエラー
+
+        '
+      enum:
+      - SUBMITTING
+      - RUNNABLE
+      - RUNNING
+      - COMPLETED
+      - FAILED
+      - CANCEL_STARTED
+      - CANCELED
+      - SERVER_ERROR
+    WorkflowJob:
+      type: object
+      required:
+      - status
+      - trigger
+      properties:
+        started_at:
+          type: string
+          format: date-time
+          description: 実行開始時間。フォーマットはISO 8601
+        ended_at:
+          type: string
+          format: date-time
+          description: 実行終了時間。フォーマットはISO 8601
+        status:
+          $ref: '#/components/schemas/WorkflowJobStatus'
+        trigger:
+          $ref: '#/components/schemas/WorkflowJobTrigger'
+        errors:
+          type: array
+          description: ワークフロージョブで発生したエラーの一覧。ワークフロージョブ失敗時のみ返却される
+          items:
+            $ref: '#/components/schemas/WorkflowJobError'
+    WorkflowNotifications:
+      type: object
+      description: ワークフローの通知設定
+      required:
+      - emails
+      - webhooks
+      - slacks
+      - msteams
+      properties:
+        emails:
+          type: array
+          description: メール通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationEmail'
+        webhooks:
+          type: array
+          description: Webhook通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationWebhook'
+        slacks:
+          type: array
+          description: Slack通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationSlack'
+        msteams:
+          type: array
+          description: Microsoft Teams通知設定の一覧。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/WorkflowNotificationMSTeams'
+    WorkflowJobs:
+      type: object
+      required:
+      - total
+      - jobs
+      properties:
+        total:
+          type: integer
+          description: ジョブ数
+        jobs:
+          type: array
+          description: ジョブ一覧
+          items:
+            $ref: '#/components/schemas/WorkflowJobSummary'
+    ExportWorkflow:
+      type: object
+      required:
+      - name
+      - type
+      - tasks
+      - dependencies
+      - parameters
+      properties:
+        name:
+          type: string
+          description: ワークフロー名
+        description:
+          type: string
+          description: ワークフローの説明
+        type:
+          type: string
+          description: ワークフロータイプ
+        tasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExportTask'
+        dependencies:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskDependency'
+        parameters:
+          type: array
+          description: パラメーター変数。未設定の場合は空配列
+          items:
+            $ref: '#/components/schemas/ExportWorkflowParameter'
+    WorkflowNotificationMSTeams:
+      type: object
+      description: ワークフローに設定されているMicrosoft Teams通知
+      required:
+      - status
+      - team
+      - channel
+      properties:
+        status:
+          $ref: '#/components/schemas/WorkflowNotificationStatus'
+        team:
+          type: string
+          description: 通知先チーム名
+        channel:
+          type: string
+          description: 通知先チャンネル名
+  responses:
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
+              value:
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - UNAUTHORIZED
+                  - TOKEN_INVALID
+                  - TOKEN_EXPIRED
+                  - TOKEN_REVOKED
+          examples:
+            unauthorized:
+              summary: 認証エラー
+              value:
+                code: UNAUTHORIZED
+                message: unauthorized
+            tokenInvalid:
+              summary: トークン不正
+              value:
+                code: TOKEN_INVALID
+                message: access token invalid
+            tokenExpired:
+              summary: トークン期限切れ
+              value:
+                code: TOKEN_EXPIRED
+                message: access token expired
+            tokenRevoked:
+              summary: トークン無効化済み
+              value:
+                code: TOKEN_REVOKED
+                message: access token revoked
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    InternalServerError:
+      description: 内部サーバーエラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
+    Forbidden:
+      description: 認可エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
+          examples:
+            forbidden:
+              summary: アクセス権限なし
+              value:
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
+              value:
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
+  requestBodies:
+    WorkflowRun:
+      description: ワークフロー実行時に上書きするパラメータ変数
+      required: false
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/WorkflowRunParameter'
+  securitySchemes:
+    BearerAccessAuth:
+      type: http
+      description: アクセストークン（pat_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Access token
+    BearerRefreshAuth:
+      type: http
+      description: リフレッシュトークン（prt_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Refresh token

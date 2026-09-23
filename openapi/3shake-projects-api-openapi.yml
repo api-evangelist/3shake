@@ -1,0 +1,350 @@
+openapi: 3.2.0
+info:
+  title: Reckoner External Projects API
+  description: Reckoner API 仕様
+  version: 1.1.0
+servers:
+- url: https://cdp-server.reckoner-api.com/api/external/v1
+  description: Reckoner API サーバー
+security:
+- BearerAccessAuth: []
+tags:
+- name: Projects
+paths:
+  /projects:
+    get:
+      summary: プロジェクト一覧
+      description: チーム管理者の場合は全プロジェクトを、非チーム管理者の場合はいずれかの権限を持つプロジェクト一覧を取得します
+      operationId: listProjects
+      tags:
+      - Projects
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Projects'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /projects/{projectId}:
+    get:
+      summary: プロジェクト詳細
+      description: プロジェクト詳細を取得します
+      operationId: getProject
+      tags:
+      - Projects
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /projects/{projectId}/accounts:
+    get:
+      summary: アカウント一覧
+      description: 'プロジェクト内のアカウント一覧を取得します.
+
+
+        権限: チーム管理者またはプロジェクト管理者'
+      operationId: getProjectAccounts
+      tags:
+      - Projects
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: '成功
+
+            '
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectAccounts'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    Forbidden:
+      description: 認可エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
+          examples:
+            forbidden:
+              summary: アクセス権限なし
+              value:
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
+              value:
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
+    InternalServerError:
+      description: 内部サーバーエラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - UNAUTHORIZED
+                  - TOKEN_INVALID
+                  - TOKEN_EXPIRED
+                  - TOKEN_REVOKED
+          examples:
+            unauthorized:
+              summary: 認証エラー
+              value:
+                code: UNAUTHORIZED
+                message: unauthorized
+            tokenInvalid:
+              summary: トークン不正
+              value:
+                code: TOKEN_INVALID
+                message: access token invalid
+            tokenExpired:
+              summary: トークン期限切れ
+              value:
+                code: TOKEN_EXPIRED
+                message: access token expired
+            tokenRevoked:
+              summary: トークン無効化済み
+              value:
+                code: TOKEN_REVOKED
+                message: access token revoked
+  schemas:
+    ProjectAccounts:
+      type: object
+      required:
+      - total
+      - accounts
+      properties:
+        total:
+          type: integer
+          description: アカウント数
+        accounts:
+          type: array
+          description: アカウント一覧
+          items:
+            $ref: '#/components/schemas/ProjectAccount'
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+    Projects:
+      type: object
+      required:
+      - total
+      - projects
+      properties:
+        total:
+          type: integer
+          description: プロジェクト数
+        projects:
+          type: array
+          description: プロジェクト一覧
+          items:
+            $ref: '#/components/schemas/Project'
+    ProjectAccount:
+      type: object
+      required:
+      - id
+      - email
+      - is_team_admin
+      - roles
+      properties:
+        id:
+          type: integer
+          description: アカウントID
+        email:
+          type: string
+          description: メールアドレス
+        is_team_admin:
+          type: boolean
+          description: チーム管理者かどうか
+        roles:
+          type: array
+          description: 権限一覧
+          items:
+            type: string
+            enum:
+            - project-admin
+            - workflow-editor
+            - integration-editor
+            - read-only
+    Project:
+      type: object
+      required:
+      - id
+      - name
+      - is_default
+      - saves_job_result
+      properties:
+        id:
+          type: integer
+          description: プロジェクトID
+        name:
+          type: string
+          description: プロジェクト名
+        description:
+          type: string
+          description: プロジェクト概要
+        is_default:
+          type: boolean
+          description: デフォルトプロジェクトかどうか
+        saves_job_result:
+          type: boolean
+          description: ワークフロー実行履歴データを保存するかどうか
+  securitySchemes:
+    BearerAccessAuth:
+      type: http
+      description: アクセストークン（pat_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Access token
+    BearerRefreshAuth:
+      type: http
+      description: リフレッシュトークン（prt_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Refresh token

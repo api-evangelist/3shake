@@ -1,0 +1,459 @@
+openapi: 3.2.0
+info:
+  title: Reckoner External Integrations API
+  description: Reckoner API 仕様
+  version: 1.1.0
+servers:
+- url: https://cdp-server.reckoner-api.com/api/external/v1
+  description: Reckoner API サーバー
+security:
+- BearerAccessAuth: []
+tags:
+- name: Integrations
+paths:
+  /integrations/projects/{projectId}:
+    get:
+      summary: 接続情報取得
+      description: 指定されたプロジェクト内の接続情報の一覧を取得します
+      operationId: listIntegrations
+      tags:
+      - Integrations
+      parameters:
+      - name: projectId
+        in: path
+        required: true
+        description: プロジェクトID
+        schema:
+          type: integer
+      - name: service
+        in: query
+        required: false
+        description: 取得対象のサービス名。未指定時は全サービスの接続情報が対象となる
+        schema:
+          type: string
+        example: mysql
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Integrations'
+              examples:
+                allServices:
+                  summary: 全サービスの接続情報
+                  value:
+                    total: 2
+                    adobe_analytics: []
+                    airtable: []
+                    amazon_redshift: []
+                    amazon_ses: []
+                    app_store_connect: []
+                    aws_s3: []
+                    azure_blob_storage: []
+                    azure_sql: []
+                    bcart: []
+                    box: []
+                    braze: []
+                    bugyo_cloud: []
+                    chatwork: []
+                    climber_cloud: []
+                    cloudsign: []
+                    collaboflow: []
+                    denodo: []
+                    dr_sum: []
+                    excel:
+                    - id: 1
+                      project_id: 2
+                      team_id: 3
+                      name: test1
+                      auth_method: oauth
+                      refreshed_at: '2026-02-20T13:00:06Z'
+                      created_at: '2025-06-25T08:58:26Z'
+                      updated_at: '0001-01-01T00:00:00Z'
+                      integration_id: 42294
+                    - id: 2
+                      project_id: 2
+                      team_id: 3
+                      name: test2
+                      auth_method: client_credentials
+                      refreshed_at: '2026-01-30T12:00:06Z'
+                      created_at: '2025-06-04T05:20:14Z'
+                      updated_at: '0001-01-01T00:00:00Z'
+                      integration_id: 40689
+                    facebook_ads: []
+                    freee: []
+                    ftp: []
+                    gmo_makeshop: []
+                    gmo_makeshop_gen2: []
+                    google_ads: []
+                    google_ad_manager: []
+                    google_analytics: []
+                    google_apis: []
+                    google_bigquery: []
+                    google_cloud_storage: []
+                    google_datastore: []
+                    google_drive: []
+                    google_lighthouse: []
+                    google_search_console: []
+                    google_spreadsheets: []
+                    hennge_one: []
+                    hubspot: []
+                    hue_workflow: []
+                    ibm_db_2: []
+                    jira: []
+                    haihai_mail: []
+                    kaonavi: []
+                    kingoftime: []
+                    kintone: []
+                    line_works: []
+                    manage_workflow: []
+                    mariadb: []
+                    marketo: []
+                    microsoft365: []
+                    miraimil: []
+                    mysql: []
+                    one_drive: []
+                    oracledatabase: []
+                    pca_cloud: []
+                    postgresql: []
+                    rtoaster_action_plus: []
+                    salesforce: []
+                    salesforce_marketing_cloud: []
+                    salesforce_pardot: []
+                    sansan: []
+                    sendgrid: []
+                    sftp: []
+                    sharepoint: []
+                    shopify: []
+                    slack: []
+                    smart_hr: []
+                    snowflake: []
+                    sqlserver: []
+                    stripe: []
+                    tableau_cloud: []
+                    trino: []
+                    twitter: []
+                    webhook_endpoint: []
+                    yahoo_ads: []
+                    zohocrm: []
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /integrations/{serviceName}/{integrationId}:
+    delete:
+      summary: 接続情報削除
+      description: 指定された接続情報を削除します
+      operationId: deleteIntegration
+      tags:
+      - Integrations
+      parameters:
+      - name: serviceName
+        in: path
+        required: true
+        description: 削除対象の接続情報のサービス名
+        schema:
+          type: string
+        example: mysql
+      - name: integrationId
+        in: path
+        required: true
+        description: 削除対象の接続情報のID
+        schema:
+          type: integer
+      - name: force
+        in: query
+        required: false
+        description: 'trueを指定した場合、ワークフローで利用中の接続情報であっても強制的に削除する。
+
+          未指定またはfalseの場合、ワークフローで利用中の接続情報は削除できずエラーが返される。
+
+          '
+        schema:
+          type: boolean
+          default: false
+      responses:
+        '200':
+          description: 成功
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: リソース競合。削除対象の接続情報がワークフローで利用中
+          content:
+            application/json:
+              schema:
+                allOf:
+                - $ref: '#/components/schemas/ErrorResponse'
+                - type: object
+                  required:
+                  - workflows
+                  properties:
+                    code:
+                      type: string
+                      enum:
+                      - CONFLICT
+                    workflows:
+                      type: array
+                      description: 削除対象の接続情報を利用しているワークフローの一覧
+                      items:
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          id:
+                            type: integer
+                            description: ワークフローID
+                          name:
+                            type: string
+                            description: ワークフロー名
+              examples:
+                conflict:
+                  summary: ワークフローで利用中の接続情報
+                  value:
+                    code: CONFLICT
+                    message: この接続情報はワークフローで利用されているため削除できません
+                    workflows:
+                    - id: 1
+                      name: 日次データ同期
+                    - id: 2
+                      name: 月次レポート生成
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    Forbidden:
+      description: 認可エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
+          examples:
+            forbidden:
+              summary: アクセス権限なし
+              value:
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
+              value:
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
+    InternalServerError:
+      description: 内部サーバーエラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
+              value:
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - UNAUTHORIZED
+                  - TOKEN_INVALID
+                  - TOKEN_EXPIRED
+                  - TOKEN_REVOKED
+          examples:
+            unauthorized:
+              summary: 認証エラー
+              value:
+                code: UNAUTHORIZED
+                message: unauthorized
+            tokenInvalid:
+              summary: トークン不正
+              value:
+                code: TOKEN_INVALID
+                message: access token invalid
+            tokenExpired:
+              summary: トークン期限切れ
+              value:
+                code: TOKEN_EXPIRED
+                message: access token expired
+            tokenRevoked:
+              summary: トークン無効化済み
+              value:
+                code: TOKEN_REVOKED
+                message: access token revoked
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+    Integrations:
+      type: object
+      description: '接続情報の一覧
+
+        '
+      required:
+      - total
+      - integrations
+      properties:
+        total:
+          type: integer
+          description: 接続情報の総件数
+        integrations:
+          type: object
+          description: '各サービス名がキーであり、値は接続情報の配列であるオブジェクト。
+
+            該当するサービスの接続情報が存在しない場合、値は空配列となる。
+
+            接続情報のプロパティはサービスごとに異なり、機密情報は含まれない。
+
+            '
+          additionalProperties:
+            type: array
+            items:
+              type: object
+              required:
+              - integration_id
+              - team_id
+              - project_id
+              - name
+              properties:
+                integration_id:
+                  type: integer
+                  description: 接続情報ID
+                team_id:
+                  type: integer
+                project_id:
+                  type: integer
+                name:
+                  type: string
+              additionalProperties: true
+  securitySchemes:
+    BearerAccessAuth:
+      type: http
+      description: アクセストークン（pat_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Access token
+    BearerRefreshAuth:
+      type: http
+      description: リフレッシュトークン（prt_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Refresh token

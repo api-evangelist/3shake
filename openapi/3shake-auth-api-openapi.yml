@@ -1,0 +1,213 @@
+openapi: 3.2.0
+info:
+  title: Reckoner External Auth API
+  description: Reckoner API 仕様
+  version: 1.1.0
+servers:
+- url: https://cdp-server.reckoner-api.com/api/external/v1
+  description: Reckoner API サーバー
+security:
+- BearerAccessAuth: []
+tags:
+- name: Auth
+paths:
+  /auth/token/refresh:
+    post:
+      summary: トークンリフレッシュ
+      description: Authorizationヘッダに指定したリフレッシュトークンからアクセストークンを発行する
+      security:
+      - BearerRefreshAuth: []
+      operationId: authTokenRefresh
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshedToken'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '402':
+          $ref: '#/components/responses/PaymentRequired'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+components:
+  responses:
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    Forbidden:
+      description: 認可エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
+          examples:
+            forbidden:
+              summary: アクセス権限なし
+              value:
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
+              value:
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
+    InternalServerError:
+      description: 内部サーバーエラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
+              value:
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    Unauthorized:
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - UNAUTHORIZED
+                  - TOKEN_INVALID
+                  - TOKEN_EXPIRED
+                  - TOKEN_REVOKED
+          examples:
+            unauthorized:
+              summary: 認証エラー
+              value:
+                code: UNAUTHORIZED
+                message: unauthorized
+            tokenInvalid:
+              summary: トークン不正
+              value:
+                code: TOKEN_INVALID
+                message: access token invalid
+            tokenExpired:
+              summary: トークン期限切れ
+              value:
+                code: TOKEN_EXPIRED
+                message: access token expired
+            tokenRevoked:
+              summary: トークン無効化済み
+              value:
+                code: TOKEN_REVOKED
+                message: access token revoked
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
+    RefreshedToken:
+      type: object
+      description: 再発行したアクセストークン
+      required:
+      - access_token
+      - expires_at
+      properties:
+        access_token:
+          description: アクセストークン
+          type: string
+        expires_at:
+          description: 有効期限
+          type: string
+          format: date-time
+  securitySchemes:
+    BearerAccessAuth:
+      type: http
+      description: アクセストークン（pat_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Access token
+    BearerRefreshAuth:
+      type: http
+      description: リフレッシュトークン（prt_ プレフィックス）
+      scheme: bearer
+      bearerFormat: Refresh token
