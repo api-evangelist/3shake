@@ -24,7 +24,7 @@ tags:
 - Data Integration
 - ETL
 - iPaaS
-- Workflow-Automation
+- Workflow Automation
 - Vulnerability Scanning
 - Attack Surface Management
 - Cloud Security
@@ -46,6 +46,7 @@ tags_raw:
 - sbom
 - kubernetes
 - japan
+- Workflow-Automation
 apis:
 - name: Securify Scan Public API
   description: >-

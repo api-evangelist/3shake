@@ -41,8 +41,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    NotFound:
-      description: リソース未検出
+    PaymentRequired:
+      description: サブスクリプションが無効
       content:
         application/json:
           schema:
@@ -53,15 +53,15 @@ components:
                 code:
                   type: string
                   enum:
-                  - NOT_FOUND
+                  - SUBSCRIPTION_INACTIVE
           examples:
-            notFound:
-              summary: リソース未検出
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
               value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    BadRequest:
-      description: 不正リクエスト
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    InternalServerError:
+      description: 内部サーバーエラー
       content:
         application/json:
           schema:
@@ -72,7 +72,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - BAD_REQUEST
+                  - INTERNAL_SERVER_ERROR
+          examples:
+            internalError:
+              summary: サーバーエラー
+              value:
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
     Forbidden:
       description: 認可エラー
       content:
@@ -98,8 +104,8 @@ components:
               value:
                 code: FEATURE_NOT_AVAILABLE
                 message: このチームではReckoner APIを利用できません
-    InternalServerError:
-      description: 内部サーバーエラー
+    NotFound:
+      description: リソース未検出
       content:
         application/json:
           schema:
@@ -110,32 +116,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - INTERNAL_SERVER_ERROR
+                  - NOT_FOUND
           examples:
-            internalError:
-              summary: サーバーエラー
+            notFound:
+              summary: リソース未検出
               value:
-                code: INTERNAL_SERVER_ERROR
-                message: 内部サーバーエラーが発生しました
-    PaymentRequired:
-      description: サブスクリプションが無効
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - SUBSCRIPTION_INACTIVE
-          examples:
-            subscriptionInactive:
-              summary: サブスクリプションが無効のため書き込み操作を実行できない
-              value:
-                code: SUBSCRIPTION_INACTIVE
-                message: subscription is inactive
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     Unauthorized:
       description: 認証エラー
       content:
@@ -173,19 +160,20 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
   schemas:
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      - message
-      properties:
-        code:
-          type: string
-          description: エラーコード
-        message:
-          type: string
-          description: エラーメッセージ
     RefreshedToken:
       type: object
       description: 再発行したアクセストークン
@@ -200,6 +188,18 @@ components:
           description: 有効期限
           type: string
           format: date-time
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
   securitySchemes:
     BearerAccessAuth:
       type: http

@@ -116,8 +116,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    TooManyRequests:
-      description: レート制限超過
+    PaymentRequired:
+      description: サブスクリプションが無効
       content:
         application/json:
           schema:
@@ -128,15 +128,15 @@ components:
                 code:
                   type: string
                   enum:
-                  - RATE_LIMIT_EXCEEDED
+                  - SUBSCRIPTION_INACTIVE
           examples:
-            rateLimitExceeded:
-              summary: レート制限超過
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
               value:
-                code: RATE_LIMIT_EXCEEDED
-                message: rate limit exceeded
-    NotFound:
-      description: リソース未検出
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
+    InternalServerError:
+      description: 内部サーバーエラー
       content:
         application/json:
           schema:
@@ -147,26 +147,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - NOT_FOUND
+                  - INTERNAL_SERVER_ERROR
           examples:
-            notFound:
-              summary: リソース未検出
+            internalError:
+              summary: サーバーエラー
               value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    BadRequest:
-      description: 不正リクエスト
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - BAD_REQUEST
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
     Forbidden:
       description: 認可エラー
       content:
@@ -192,8 +179,8 @@ components:
               value:
                 code: FEATURE_NOT_AVAILABLE
                 message: このチームではReckoner APIを利用できません
-    InternalServerError:
-      description: 内部サーバーエラー
+    NotFound:
+      description: リソース未検出
       content:
         application/json:
           schema:
@@ -204,32 +191,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - INTERNAL_SERVER_ERROR
+                  - NOT_FOUND
           examples:
-            internalError:
-              summary: サーバーエラー
+            notFound:
+              summary: リソース未検出
               value:
-                code: INTERNAL_SERVER_ERROR
-                message: 内部サーバーエラーが発生しました
-    PaymentRequired:
-      description: サブスクリプションが無効
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - SUBSCRIPTION_INACTIVE
-          examples:
-            subscriptionInactive:
-              summary: サブスクリプションが無効のため書き込み操作を実行できない
-              value:
-                code: SUBSCRIPTION_INACTIVE
-                message: subscription is inactive
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     Unauthorized:
       description: 認証エラー
       content:
@@ -267,6 +235,38 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
   schemas:
     ErrorResponse:
       type: object

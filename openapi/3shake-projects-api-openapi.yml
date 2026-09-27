@@ -113,9 +113,100 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 components:
+  schemas:
+    Projects:
+      type: object
+      required:
+      - total
+      - projects
+      properties:
+        total:
+          type: integer
+          description: プロジェクト数
+        projects:
+          type: array
+          description: プロジェクト一覧
+          items:
+            $ref: '#/components/schemas/Project'
+    ProjectAccounts:
+      type: object
+      required:
+      - total
+      - accounts
+      properties:
+        total:
+          type: integer
+          description: アカウント数
+        accounts:
+          type: array
+          description: アカウント一覧
+          items:
+            $ref: '#/components/schemas/ProjectAccount'
+    Project:
+      type: object
+      required:
+      - id
+      - name
+      - is_default
+      - saves_job_result
+      properties:
+        id:
+          type: integer
+          description: プロジェクトID
+        name:
+          type: string
+          description: プロジェクト名
+        description:
+          type: string
+          description: プロジェクト概要
+        is_default:
+          type: boolean
+          description: デフォルトプロジェクトかどうか
+        saves_job_result:
+          type: boolean
+          description: ワークフロー実行履歴データを保存するかどうか
+    ProjectAccount:
+      type: object
+      required:
+      - id
+      - email
+      - is_team_admin
+      - roles
+      properties:
+        id:
+          type: integer
+          description: アカウントID
+        email:
+          type: string
+          description: メールアドレス
+        is_team_admin:
+          type: boolean
+          description: チーム管理者かどうか
+        roles:
+          type: array
+          description: 権限一覧
+          items:
+            type: string
+            enum:
+            - project-admin
+            - workflow-editor
+            - integration-editor
+            - read-only
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
   responses:
-    TooManyRequests:
-      description: レート制限超過
+    InternalServerError:
+      description: 内部サーバーエラー
       content:
         application/json:
           schema:
@@ -126,45 +217,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - RATE_LIMIT_EXCEEDED
+                  - INTERNAL_SERVER_ERROR
           examples:
-            rateLimitExceeded:
-              summary: レート制限超過
+            internalError:
+              summary: サーバーエラー
               value:
-                code: RATE_LIMIT_EXCEEDED
-                message: rate limit exceeded
-    NotFound:
-      description: リソース未検出
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - NOT_FOUND
-          examples:
-            notFound:
-              summary: リソース未検出
-              value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    BadRequest:
-      description: 不正リクエスト
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - BAD_REQUEST
+                code: INTERNAL_SERVER_ERROR
+                message: 内部サーバーエラーが発生しました
     Forbidden:
       description: 認可エラー
       content:
@@ -190,8 +249,8 @@ components:
               value:
                 code: FEATURE_NOT_AVAILABLE
                 message: このチームではReckoner APIを利用できません
-    InternalServerError:
-      description: 内部サーバーエラー
+    NotFound:
+      description: リソース未検出
       content:
         application/json:
           schema:
@@ -202,13 +261,13 @@ components:
                 code:
                   type: string
                   enum:
-                  - INTERNAL_SERVER_ERROR
+                  - NOT_FOUND
           examples:
-            internalError:
-              summary: サーバーエラー
+            notFound:
+              summary: リソース未検出
               value:
-                code: INTERNAL_SERVER_ERROR
-                message: 内部サーバーエラーが発生しました
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     Unauthorized:
       description: 認証エラー
       content:
@@ -246,97 +305,38 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-  schemas:
-    ProjectAccounts:
-      type: object
-      required:
-      - total
-      - accounts
-      properties:
-        total:
-          type: integer
-          description: アカウント数
-        accounts:
-          type: array
-          description: アカウント一覧
-          items:
-            $ref: '#/components/schemas/ProjectAccount'
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      - message
-      properties:
-        code:
-          type: string
-          description: エラーコード
-        message:
-          type: string
-          description: エラーメッセージ
-    Projects:
-      type: object
-      required:
-      - total
-      - projects
-      properties:
-        total:
-          type: integer
-          description: プロジェクト数
-        projects:
-          type: array
-          description: プロジェクト一覧
-          items:
-            $ref: '#/components/schemas/Project'
-    ProjectAccount:
-      type: object
-      required:
-      - id
-      - email
-      - is_team_admin
-      - roles
-      properties:
-        id:
-          type: integer
-          description: アカウントID
-        email:
-          type: string
-          description: メールアドレス
-        is_team_admin:
-          type: boolean
-          description: チーム管理者かどうか
-        roles:
-          type: array
-          description: 権限一覧
-          items:
-            type: string
-            enum:
-            - project-admin
-            - workflow-editor
-            - integration-editor
-            - read-only
-    Project:
-      type: object
-      required:
-      - id
-      - name
-      - is_default
-      - saves_job_result
-      properties:
-        id:
-          type: integer
-          description: プロジェクトID
-        name:
-          type: string
-          description: プロジェクト名
-        description:
-          type: string
-          description: プロジェクト概要
-        is_default:
-          type: boolean
-          description: デフォルトプロジェクトかどうか
-        saves_job_result:
-          type: boolean
-          description: ワークフロー実行履歴データを保存するかどうか
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
   securitySchemes:
     BearerAccessAuth:
       type: http
