@@ -114,34 +114,6 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   schemas:
-    Projects:
-      type: object
-      required:
-      - total
-      - projects
-      properties:
-        total:
-          type: integer
-          description: プロジェクト数
-        projects:
-          type: array
-          description: プロジェクト一覧
-          items:
-            $ref: '#/components/schemas/Project'
-    ProjectAccounts:
-      type: object
-      required:
-      - total
-      - accounts
-      properties:
-        total:
-          type: integer
-          description: アカウント数
-        accounts:
-          type: array
-          description: アカウント一覧
-          items:
-            $ref: '#/components/schemas/ProjectAccount'
     Project:
       type: object
       required:
@@ -165,6 +137,20 @@ components:
         saves_job_result:
           type: boolean
           description: ワークフロー実行履歴データを保存するかどうか
+    ProjectAccounts:
+      type: object
+      required:
+      - total
+      - accounts
+      properties:
+        total:
+          type: integer
+          description: アカウント数
+        accounts:
+          type: array
+          description: アカウント一覧
+          items:
+            $ref: '#/components/schemas/ProjectAccount'
     ProjectAccount:
       type: object
       required:
@@ -204,7 +190,53 @@ components:
         message:
           type: string
           description: エラーメッセージ
+    Projects:
+      type: object
+      required:
+      - total
+      - projects
+      properties:
+        total:
+          type: integer
+          description: プロジェクト数
+        projects:
+          type: array
+          description: プロジェクト一覧
+          items:
+            $ref: '#/components/schemas/Project'
   responses:
+    TooManyRequests:
+      description: レート制限超過
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - RATE_LIMIT_EXCEEDED
+          examples:
+            rateLimitExceeded:
+              summary: レート制限超過
+              value:
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
     InternalServerError:
       description: 内部サーバーエラー
       content:
@@ -224,6 +256,25 @@ components:
               value:
                 code: INTERNAL_SERVER_ERROR
                 message: 内部サーバーエラーが発生しました
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     Forbidden:
       description: 認可エラー
       content:
@@ -249,25 +300,6 @@ components:
               value:
                 code: FEATURE_NOT_AVAILABLE
                 message: このチームではReckoner APIを利用できません
-    NotFound:
-      description: リソース未検出
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - NOT_FOUND
-          examples:
-            notFound:
-              summary: リソース未検出
-              value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
     Unauthorized:
       description: 認証エラー
       content:
@@ -305,38 +337,6 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-    BadRequest:
-      description: 不正リクエスト
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - BAD_REQUEST
-    TooManyRequests:
-      description: レート制限超過
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - RATE_LIMIT_EXCEEDED
-          examples:
-            rateLimitExceeded:
-              summary: レート制限超過
-              value:
-                code: RATE_LIMIT_EXCEEDED
-                message: rate limit exceeded
   securitySchemes:
     BearerAccessAuth:
       type: http

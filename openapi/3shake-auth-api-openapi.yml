@@ -40,6 +40,33 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 components:
+  schemas:
+    RefreshedToken:
+      type: object
+      description: 再発行したアクセストークン
+      required:
+      - access_token
+      - expires_at
+      properties:
+        access_token:
+          description: アクセストークン
+          type: string
+        expires_at:
+          description: 有効期限
+          type: string
+          format: date-time
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
   responses:
     PaymentRequired:
       description: サブスクリプションが無効
@@ -60,6 +87,19 @@ components:
               value:
                 code: SUBSCRIPTION_INACTIVE
                 message: subscription is inactive
+    BadRequest:
+      description: 不正リクエスト
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - BAD_REQUEST
     InternalServerError:
       description: 内部サーバーエラー
       content:
@@ -79,6 +119,25 @@ components:
               value:
                 code: INTERNAL_SERVER_ERROR
                 message: 内部サーバーエラーが発生しました
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
+              value:
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     Forbidden:
       description: 認可エラー
       content:
@@ -104,25 +163,6 @@ components:
               value:
                 code: FEATURE_NOT_AVAILABLE
                 message: このチームではReckoner APIを利用できません
-    NotFound:
-      description: リソース未検出
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - NOT_FOUND
-          examples:
-            notFound:
-              summary: リソース未検出
-              value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
     Unauthorized:
       description: 認証エラー
       content:
@@ -160,46 +200,6 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-    BadRequest:
-      description: 不正リクエスト
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - BAD_REQUEST
-  schemas:
-    RefreshedToken:
-      type: object
-      description: 再発行したアクセストークン
-      required:
-      - access_token
-      - expires_at
-      properties:
-        access_token:
-          description: アクセストークン
-          type: string
-        expires_at:
-          description: 有効期限
-          type: string
-          format: date-time
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      - message
-      properties:
-        code:
-          type: string
-          description: エラーコード
-        message:
-          type: string
-          description: エラーメッセージ
   securitySchemes:
     BearerAccessAuth:
       type: http
