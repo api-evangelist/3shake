@@ -114,20 +114,32 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   schemas:
-    ProjectAccounts:
+    Projects:
       type: object
       required:
       - total
-      - accounts
+      - projects
       properties:
         total:
           type: integer
-          description: アカウント数
-        accounts:
+          description: プロジェクト数
+        projects:
           type: array
-          description: アカウント一覧
+          description: プロジェクト一覧
           items:
-            $ref: '#/components/schemas/ProjectAccount'
+            $ref: '#/components/schemas/Project'
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
     ProjectAccount:
       type: object
       required:
@@ -155,32 +167,20 @@ components:
             - workflow-editor
             - integration-editor
             - read-only
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      - message
-      properties:
-        code:
-          type: string
-          description: エラーコード
-        message:
-          type: string
-          description: エラーメッセージ
-    Projects:
+    ProjectAccounts:
       type: object
       required:
       - total
-      - projects
+      - accounts
       properties:
         total:
           type: integer
-          description: プロジェクト数
-        projects:
+          description: アカウント数
+        accounts:
           type: array
-          description: プロジェクト一覧
+          description: アカウント一覧
           items:
-            $ref: '#/components/schemas/Project'
+            $ref: '#/components/schemas/ProjectAccount'
     Project:
       type: object
       required:
@@ -205,8 +205,8 @@ components:
           type: boolean
           description: ワークフロー実行履歴データを保存するかどうか
   responses:
-    NotFound:
-      description: リソース未検出
+    Forbidden:
+      description: 認可エラー
       content:
         application/json:
           schema:
@@ -217,32 +217,19 @@ components:
                 code:
                   type: string
                   enum:
-                  - NOT_FOUND
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
           examples:
-            notFound:
-              summary: リソース未検出
+            forbidden:
+              summary: アクセス権限なし
               value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    TooManyRequests:
-      description: レート制限超過
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - RATE_LIMIT_EXCEEDED
-          examples:
-            rateLimitExceeded:
-              summary: レート制限超過
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
               value:
-                code: RATE_LIMIT_EXCEEDED
-                message: rate limit exceeded
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
     InternalServerError:
       description: 内部サーバーエラー
       content:
@@ -299,8 +286,8 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-    Forbidden:
-      description: 認可エラー
+    TooManyRequests:
+      description: レート制限超過
       content:
         application/json:
           schema:
@@ -311,19 +298,32 @@ components:
                 code:
                   type: string
                   enum:
-                  - FORBIDDEN
-                  - FEATURE_NOT_AVAILABLE
+                  - RATE_LIMIT_EXCEEDED
           examples:
-            forbidden:
-              summary: アクセス権限なし
+            rateLimitExceeded:
+              summary: レート制限超過
               value:
-                code: FORBIDDEN
-                message: このリソースへのアクセス権限がありません
-            featureNotAvailable:
-              summary: プランで利用できない機能
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
               value:
-                code: FEATURE_NOT_AVAILABLE
-                message: このチームではReckoner APIを利用できません
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
     BadRequest:
       description: 不正リクエスト
       content:

@@ -116,8 +116,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    NotFound:
-      description: リソース未検出
+    Forbidden:
+      description: 認可エラー
       content:
         application/json:
           schema:
@@ -128,51 +128,19 @@ components:
                 code:
                   type: string
                   enum:
-                  - NOT_FOUND
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
           examples:
-            notFound:
-              summary: リソース未検出
+            forbidden:
+              summary: アクセス権限なし
               value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    TooManyRequests:
-      description: レート制限超過
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - RATE_LIMIT_EXCEEDED
-          examples:
-            rateLimitExceeded:
-              summary: レート制限超過
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
               value:
-                code: RATE_LIMIT_EXCEEDED
-                message: rate limit exceeded
-    PaymentRequired:
-      description: サブスクリプションが無効
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - SUBSCRIPTION_INACTIVE
-          examples:
-            subscriptionInactive:
-              summary: サブスクリプションが無効のため書き込み操作を実行できない
-              value:
-                code: SUBSCRIPTION_INACTIVE
-                message: subscription is inactive
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
     InternalServerError:
       description: 内部サーバーエラー
       content:
@@ -229,8 +197,8 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-    Forbidden:
-      description: 認可エラー
+    TooManyRequests:
+      description: レート制限超過
       content:
         application/json:
           schema:
@@ -241,19 +209,51 @@ components:
                 code:
                   type: string
                   enum:
-                  - FORBIDDEN
-                  - FEATURE_NOT_AVAILABLE
+                  - RATE_LIMIT_EXCEEDED
           examples:
-            forbidden:
-              summary: アクセス権限なし
+            rateLimitExceeded:
+              summary: レート制限超過
               value:
-                code: FORBIDDEN
-                message: このリソースへのアクセス権限がありません
-            featureNotAvailable:
-              summary: プランで利用できない機能
+                code: RATE_LIMIT_EXCEEDED
+                message: rate limit exceeded
+    NotFound:
+      description: リソース未検出
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - NOT_FOUND
+          examples:
+            notFound:
+              summary: リソース未検出
               value:
-                code: FEATURE_NOT_AVAILABLE
-                message: このチームではReckoner APIを利用できません
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
+              value:
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
     BadRequest:
       description: 不正リクエスト
       content:

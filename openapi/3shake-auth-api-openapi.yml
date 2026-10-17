@@ -41,8 +41,8 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 components:
   responses:
-    NotFound:
-      description: リソース未検出
+    Forbidden:
+      description: 認可エラー
       content:
         application/json:
           schema:
@@ -53,32 +53,19 @@ components:
                 code:
                   type: string
                   enum:
-                  - NOT_FOUND
+                  - FORBIDDEN
+                  - FEATURE_NOT_AVAILABLE
           examples:
-            notFound:
-              summary: リソース未検出
+            forbidden:
+              summary: アクセス権限なし
               value:
-                code: NOT_FOUND
-                message: 指定されたリソースが見つかりません
-    PaymentRequired:
-      description: サブスクリプションが無効
-      content:
-        application/json:
-          schema:
-            allOf:
-            - $ref: '#/components/schemas/ErrorResponse'
-            - type: object
-              properties:
-                code:
-                  type: string
-                  enum:
-                  - SUBSCRIPTION_INACTIVE
-          examples:
-            subscriptionInactive:
-              summary: サブスクリプションが無効のため書き込み操作を実行できない
+                code: FORBIDDEN
+                message: このリソースへのアクセス権限がありません
+            featureNotAvailable:
+              summary: プランで利用できない機能
               value:
-                code: SUBSCRIPTION_INACTIVE
-                message: subscription is inactive
+                code: FEATURE_NOT_AVAILABLE
+                message: このチームではReckoner APIを利用できません
     InternalServerError:
       description: 内部サーバーエラー
       content:
@@ -135,8 +122,8 @@ components:
               value:
                 code: TOKEN_REVOKED
                 message: access token revoked
-    Forbidden:
-      description: 認可エラー
+    NotFound:
+      description: リソース未検出
       content:
         application/json:
           schema:
@@ -147,19 +134,32 @@ components:
                 code:
                   type: string
                   enum:
-                  - FORBIDDEN
-                  - FEATURE_NOT_AVAILABLE
+                  - NOT_FOUND
           examples:
-            forbidden:
-              summary: アクセス権限なし
+            notFound:
+              summary: リソース未検出
               value:
-                code: FORBIDDEN
-                message: このリソースへのアクセス権限がありません
-            featureNotAvailable:
-              summary: プランで利用できない機能
+                code: NOT_FOUND
+                message: 指定されたリソースが見つかりません
+    PaymentRequired:
+      description: サブスクリプションが無効
+      content:
+        application/json:
+          schema:
+            allOf:
+            - $ref: '#/components/schemas/ErrorResponse'
+            - type: object
+              properties:
+                code:
+                  type: string
+                  enum:
+                  - SUBSCRIPTION_INACTIVE
+          examples:
+            subscriptionInactive:
+              summary: サブスクリプションが無効のため書き込み操作を実行できない
               value:
-                code: FEATURE_NOT_AVAILABLE
-                message: このチームではReckoner APIを利用できません
+                code: SUBSCRIPTION_INACTIVE
+                message: subscription is inactive
     BadRequest:
       description: 不正リクエスト
       content:
@@ -174,18 +174,6 @@ components:
                   enum:
                   - BAD_REQUEST
   schemas:
-    ErrorResponse:
-      type: object
-      required:
-      - code
-      - message
-      properties:
-        code:
-          type: string
-          description: エラーコード
-        message:
-          type: string
-          description: エラーメッセージ
     RefreshedToken:
       type: object
       description: 再発行したアクセストークン
@@ -200,6 +188,18 @@ components:
           description: 有効期限
           type: string
           format: date-time
+    ErrorResponse:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          description: エラーコード
+        message:
+          type: string
+          description: エラーメッセージ
   securitySchemes:
     BearerAccessAuth:
       type: http
