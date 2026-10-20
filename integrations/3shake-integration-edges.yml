@@ -1,5 +1,13 @@
-generated: '2026-10-13'
+generated: '2026-10-20'
 method: searched
+source:
+- https://github.com/cncf/landscape
+- https://github.com/cncf/k8s-conformance
+- https://zapier.com/apps/3shake/integrations
+- https://zapier.com/apps/3-shake/integrations
+- https://n8n.io/integrations/3shake/
+- https://composio.dev/toolkits/3shake
+- https://monid.ai/tools/3shake
 checked:
 - https://api.nuget.org/v3
 - https://aws.amazon.com/marketplace/
@@ -12,6 +20,12 @@ checked:
 - https://registry.npmjs.org
 - https://repo1.maven.org/maven2
 - https://rubygems.org/api/v1
+- https://composio.dev/toolkits/3shake
+- https://monid.ai/tools/3shake
+- https://n8n.io/integrations/3shake/
+- https://zapier.com/apps/3-shake/integrations
+- https://zapier.com/apps/3shake/integrations
+summary: null
 marketplace_apps: []
 edges:
 - partner_name: AWS Marketplace
@@ -148,6 +162,4 @@ edges:
     detected: '2026-10-19'
   detected_by: sweep-cloud-native.py
   first_seen: '2026-10-15'
-source:
-- https://github.com/cncf/landscape
-- https://github.com/cncf/k8s-conformance
+templates: []
